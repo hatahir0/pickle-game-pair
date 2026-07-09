@@ -35,6 +35,16 @@ export interface Messages {
   leaveTooFew: string
   leftLabel: string
   cancel: string
+  someoneJoins: string
+  joinPrompt: string
+  joinNamePlaceholder: string
+  joinApply: string
+  joinConfirm: (name: string) => string
+  barSummary: string
+  barLeave: string
+  barJoin: string
+  barReshuffle: string
+  barSetup: string
   pairRepeat: (n: number) => string
   summaryTitle: string
   colPlayer: string
@@ -78,6 +88,17 @@ export const messages: Record<Lang, Messages> = {
     leaveTooFew: '残りが4人未満になるため、これ以上は外せません',
     leftLabel: '離脱',
     cancel: 'キャンセル',
+    someoneJoins: '途中から入る人',
+    joinPrompt: 'あとから参加する人を追加します（名前は任意）',
+    joinNamePlaceholder: '名前（任意）',
+    joinApply: '追加して組み直す',
+    joinConfirm: (name: string) =>
+      `${name} を追加し、この先のゲームを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
+    barSummary: 'サマリー',
+    barLeave: '抜ける',
+    barJoin: '入る',
+    barReshuffle: '作り直す',
+    barSetup: '設定',
     pairRepeat: (n: number) => `${n}回目`,
     summaryTitle: '結果サマリー',
     colPlayer: 'プレイヤー',
@@ -120,6 +141,17 @@ export const messages: Record<Lang, Messages> = {
     leaveTooFew: 'Cannot remove more — fewer than 4 players would remain',
     leftLabel: 'Left',
     cancel: 'Cancel',
+    someoneJoins: 'Add player',
+    joinPrompt: 'Add someone joining mid-session (name optional)',
+    joinNamePlaceholder: 'Name (optional)',
+    joinApply: 'Add & rebuild',
+    joinConfirm: (name: string) =>
+      `Add ${name} and rebuild the upcoming games? Finished games are kept.`,
+    barSummary: 'Summary',
+    barLeave: 'Leave',
+    barJoin: 'Join',
+    barReshuffle: 'Reshuffle',
+    barSetup: 'Setup',
     pairRepeat: (n: number) => `${ordinalEn(n)} time`,
     summaryTitle: 'Summary',
     colPlayer: 'Player',

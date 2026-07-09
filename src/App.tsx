@@ -73,6 +73,19 @@ export default function App() {
     update({ ...session, rounds, leftPlayers })
   }
 
+  const join = (name: string) => {
+    if (!session) return
+    const playerNames = [...session.playerNames, name.trim()]
+    const rounds = regenerateRemaining(
+      session.rounds,
+      session.done,
+      playerNames.length,
+      session.leftPlayers,
+      session.courts,
+    )
+    update({ ...session, rounds, playerNames })
+  }
+
   const backToSetup = () => {
     if (!window.confirm(t.confirmNew)) return
     clearSession()
@@ -112,6 +125,7 @@ export default function App() {
           onRegenerate={regenerate}
           onBackToSetup={backToSetup}
           onLeave={leave}
+          onJoin={join}
         />
       )}
 

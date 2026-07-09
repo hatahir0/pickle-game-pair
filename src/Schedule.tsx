@@ -46,6 +46,7 @@ export default function Schedule({
   onRegenerate,
   onBackToSetup,
   onLeave,
+  onJoin,
 }: {
   t: Messages
   session: Session
@@ -54,15 +55,18 @@ export default function Schedule({
   onRegenerate: () => void
   onBackToSetup: () => void
   onLeave: (indices: number[]) => void
+  onJoin: (name: string) => void
 }) {
   const { rounds, playerNames, totalGames, done, leftPlayers } = session
   const doneCount = done.filter(Boolean).length
   const finished = rounds.length > 0 && doneCount === rounds.length
   const firstOpen = done.findIndex((d) => !d)
   const currentRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  const [leavePanel, setLeavePanel] = useState(false)
+  const [panel, setPanel] = useState<'leave' | 'join' | null>(null)
   const [picked, setPicked] = useState<Set<number>>(new Set())
+  const [joinName, setJoinName] = useState('')
 
   const leftSet = new Set(leftPlayers)
   const activePlayers = playerNames.map((_, i) => i).filter((i) => !leftSet.has(i))
@@ -74,6 +78,10 @@ export default function Schedule({
   useEffect(() => {
     currentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [firstOpen])
+
+  useEffect(() => {
+    if (panel) panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [panel])
 
   const toggle = (i: number) => {
     const next = [...done]
@@ -89,8 +97,18 @@ export default function Schedule({
   }
 
   const closePanel = () => {
-    setLeavePanel(false)
+    setPanel(null)
     setPicked(new Set())
+    setJoinName('')
+  }
+
+  const openPanel = (which: 'leave' | 'join') => {
+    if (panel === which) closePanel()
+    else {
+      setPicked(new Set())
+      setJoinName('')
+      setPanel(which)
+    }
   }
 
   const applyLeave = () => {
@@ -98,6 +116,13 @@ export default function Schedule({
     const names = [...picked].sort((a, b) => a - b).map(nameOf).join(t.sep)
     if (!window.confirm(t.leaveConfirm(names))) return
     onLeave([...picked])
+    closePanel()
+  }
+
+  const applyJoin = () => {
+    const display = joinName.trim() || String(playerNames.length + 1)
+    if (!window.confirm(t.joinConfirm(display))) return
+    onJoin(joinName)
     closePanel()
   }
 
@@ -170,17 +195,10 @@ export default function Schedule({
         )
       })}
 
-      {finished && (
-        <>
-          <div className="finished-banner">{t.finished}</div>
-          <button className="btn-primary" onClick={onSummary}>
-            📊 {t.toSummary}
-          </button>
-        </>
-      )}
+      {finished && <div className="finished-banner">{t.finished}</div>}
 
-      {!finished && leavePanel && (
-        <div className="leave-panel card">
+      {!finished && panel === 'leave' && (
+        <div className="leave-panel card" ref={panelRef}>
           <p className="leave-prompt">{t.leavePrompt}</p>
           <div className="leave-chips">
             {activePlayers.map((i) => (
@@ -210,25 +228,55 @@ export default function Schedule({
         </div>
       )}
 
-      <div className="footer-links">
-        {!finished && (
-          <button className="btn-secondary" onClick={onSummary}>
-            📊 {t.toSummary}
-          </button>
-        )}
+      {!finished && panel === 'join' && (
+        <div className="leave-panel card" ref={panelRef}>
+          <p className="leave-prompt">{t.joinPrompt}</p>
+          <input
+            className="join-input"
+            value={joinName}
+            placeholder={t.joinNamePlaceholder}
+            maxLength={12}
+            onChange={(e) => setJoinName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && applyJoin()}
+          />
+          <div className="leave-actions">
+            <button className="btn-primary" onClick={applyJoin}>
+              {t.joinApply}
+            </button>
+            <button className="btn-secondary" onClick={closePanel}>
+              {t.cancel}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="action-bar">
+        <button onClick={onSummary}>
+          <span className="ico" aria-hidden="true">📊</span>
+          {t.barSummary}
+        </button>
         {!finished && (
           <button
-            className="btn-secondary"
-            onClick={() => (leavePanel ? closePanel() : setLeavePanel(true))}
+            className={panel === 'leave' ? 'active' : ''}
+            onClick={() => openPanel('leave')}
           >
-            🚪 {t.someoneLeaves}
+            <span className="ico" aria-hidden="true">🚪</span>
+            {t.barLeave}
           </button>
         )}
-        <button className="btn-secondary" onClick={onRegenerate}>
-          🔀 {t.regenerate}
+        {!finished && (
+          <button className={panel === 'join' ? 'active' : ''} onClick={() => openPanel('join')}>
+            <span className="ico" aria-hidden="true">🙋</span>
+            {t.barJoin}
+          </button>
+        )}
+        <button onClick={onRegenerate}>
+          <span className="ico" aria-hidden="true">🔀</span>
+          {t.barReshuffle}
         </button>
-        <button className="btn-secondary" onClick={onBackToSetup}>
-          ⚙️ {t.newSession}
+        <button onClick={onBackToSetup}>
+          <span className="ico" aria-hidden="true">⚙️</span>
+          {t.barSetup}
         </button>
       </div>
     </>

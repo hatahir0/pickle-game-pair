@@ -512,3 +512,56 @@ details.names summary {
   vertical-align: middle;
   font-weight: 600;
 }
+
+.join-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  gap: 2px;
+  margin: 16px -16px 0;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -3px 12px rgba(15, 110, 86, 0.08);
+}
+
+.action-bar button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 2px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.action-bar button .ico {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.action-bar button:active {
+  background: var(--green-pale);
+}
+
+.action-bar button.active {
+  background: var(--green-pale);
+  color: var(--green-darker);
+}

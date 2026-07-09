@@ -118,6 +118,35 @@ function runLeave(
   )
 }
 
+// 途中参加：人数を増やし、未完了ゲームだけ新メンバーを含めて組み直す
+function runJoin(players: number, courts: number, games: number, doneCount: number, seed: number) {
+  const original = generateSchedule(players, courts, games, mulberry32(seed))
+  const done = original.map((_, i) => i < doneCount)
+  const newNum = players + 1
+  const joiner = players // 新メンバーの番号
+  const rebuilt = regenerateRemaining(original, done, newNum, [], courts, mulberry32(seed + 7))
+
+  check(rebuilt.length === original.length, `join: game count changed`)
+  for (let i = 0; i < doneCount; i++) {
+    check(roundKey(rebuilt[i]) === roundKey(original[i]), `join: done game ${i + 1} modified`)
+  }
+  // 完了済みに新メンバーは登場しない（当然）／未完了には登場しうる
+  let joinerPlays = 0
+  for (let i = doneCount; i < rebuilt.length; i++) {
+    for (const g of rebuilt[i].games) if ([...g.pairA, ...g.pairB].includes(joiner)) joinerPlays++
+  }
+  check(joinerPlays > 0, `join: new player never appears in upcoming games`)
+
+  const tailStats = computeStats(rebuilt.slice(doneCount), newNum)
+  const plays = tailStats.map((s) => s.plays)
+  const spread = Math.max(...plays) - Math.min(...plays)
+  check(spread <= 2, `join: tail play spread ${spread} > 2 (${plays.join(',')})`)
+  console.log(
+    `join players=${players}->${newNum} done=${doneCount} seed=${seed}` +
+      ` | joiner plays ${joinerPlays} in tail | OK`,
+  )
+}
+
 // 4) 残り4人未満なら例外
 function runLeaveTooFew() {
   const rounds = generateSchedule(5, 1, 6, mulberry32(1))
@@ -153,6 +182,11 @@ for (const seed of [1, 2, 3]) {
   runLeave(8, 2, 15, 3, 5, seed) // 8人→7人（2コート→1コートに自然減）
   runLeave(12, 3, 15, 4, 2, seed) // 12人→11人
   runLeave(10, 2, 15, 0, 0, seed) // 開始前に離脱（全ゲーム組み直し）
+}
+console.log('\n--- mid-session join ---')
+for (const seed of [1, 2, 3]) {
+  runJoin(7, 2, 15, 3, seed) // 7人→8人（1コート→2コートに復帰しうる）
+  runJoin(8, 2, 15, 5, seed) // 8人→9人
 }
 runLeaveTooFew()
 
