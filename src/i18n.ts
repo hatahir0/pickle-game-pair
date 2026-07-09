@@ -16,6 +16,7 @@ export interface Messages {
   games: string
   playerNames: string
   namePlaceholder: (n: number) => string
+  clearNames: string
   generate: string
   effectiveCourts: (n: number) => string
   game: string
@@ -38,7 +39,8 @@ export interface Messages {
   someoneJoins: string
   joinPrompt: string
   joinNamePlaceholder: string
-  joinApply: string
+  joinApplyNamed: (name: string) => string
+  joinApplyNumber: (n: number) => string
   joinConfirm: (name: string) => string
   barSummary: string
   barLeave: string
@@ -84,6 +86,7 @@ export const messages: Record<Lang, Messages> = {
     games: 'ゲーム数',
     playerNames: '名前を入力（任意・未入力は番号）',
     namePlaceholder: (n: number) => `プレイヤー ${n}`,
+    clearNames: '名前をクリア',
     generate: '組み合わせを作る',
     effectiveCourts: (n: number) => `※ 人数の都合で同時に使うのは ${n} 面です`,
     game: 'ゲーム',
@@ -105,9 +108,10 @@ export const messages: Record<Lang, Messages> = {
     leftLabel: '離脱',
     cancel: 'キャンセル',
     someoneJoins: '途中から入る人',
-    joinPrompt: 'あとから参加する人を追加します（名前は任意）',
-    joinNamePlaceholder: '名前（任意）',
-    joinApply: '追加して組み直す',
+    joinPrompt: 'あとから来た人を1名追加します。名前は任意で、未入力なら番号になります。',
+    joinNamePlaceholder: '名前（任意・空でOK）',
+    joinApplyNamed: (name: string) => `「${name}」を追加`,
+    joinApplyNumber: (n: number) => `番号「${n}」で追加`,
     joinConfirm: (name: string) =>
       `${name} を追加し、この先のゲームを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
     barSummary: 'サマリー',
@@ -156,6 +160,7 @@ export const messages: Record<Lang, Messages> = {
     games: 'Games',
     playerNames: 'Player names (optional, numbers by default)',
     namePlaceholder: (n: number) => `Player ${n}`,
+    clearNames: 'Clear names',
     generate: 'Create schedule',
     effectiveCourts: (n: number) => `Only ${n} court(s) used at once for this player count`,
     game: 'Game',
@@ -177,9 +182,10 @@ export const messages: Record<Lang, Messages> = {
     leftLabel: 'Left',
     cancel: 'Cancel',
     someoneJoins: 'Add player',
-    joinPrompt: 'Add someone joining mid-session (name optional)',
+    joinPrompt: 'Add one player who just arrived. The name is optional — leave it blank to use a number.',
     joinNamePlaceholder: 'Name (optional)',
-    joinApply: 'Add & rebuild',
+    joinApplyNamed: (name: string) => `Add "${name}"`,
+    joinApplyNumber: (n: number) => `Add as "${n}"`,
     joinConfirm: (name: string) =>
       `Add ${name} and rebuild the upcoming games? Finished games are kept.`,
     barSummary: 'Summary',

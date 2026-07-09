@@ -67,6 +67,7 @@ export default function Setup({
   const [names, setNames] = useState<string[]>(initial.names)
 
   const effectiveCourts = Math.min(courts, Math.floor(players / 4))
+  const hasAnyName = names.some((n) => (n ?? '').trim() !== '')
 
   const setName = (i: number, v: string) => {
     const next = [...names]
@@ -74,6 +75,8 @@ export default function Setup({
     next[i] = v
     setNames(next)
   }
+
+  const clearNames = () => setNames([])
 
   const start = () => {
     const playerNames = Array.from({ length: players }, (_, i) => (names[i] ?? '').trim())
@@ -96,8 +99,23 @@ export default function Setup({
         {effectiveCourts < courts && <div className="hint">{t.effectiveCourts(effectiveCourts)}</div>}
       </div>
 
-      <details className="names">
-        <summary>{t.playerNames}</summary>
+      <details className="names" open={hasAnyName}>
+        <summary className="names-summary">
+          <span className="names-summary-label">
+            <span aria-hidden="true">✏️</span> {t.playerNames}
+          </span>
+          <span className="names-chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div className="names-actions">
+          <button
+            type="button"
+            className="clear-names"
+            disabled={!hasAnyName}
+            onClick={clearNames}
+          >
+            {t.clearNames}
+          </button>
+        </div>
         <div className="names-grid">
           {Array.from({ length: players }, (_, i) => (
             <input

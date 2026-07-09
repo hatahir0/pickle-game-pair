@@ -241,7 +241,9 @@ export default function Schedule({
           />
           <div className="leave-actions">
             <button className="btn-primary" onClick={applyJoin}>
-              {t.joinApply}
+              {joinName.trim()
+                ? t.joinApplyNamed(joinName.trim())
+                : t.joinApplyNumber(playerNames.length + 1)}
             </button>
             <button className="btn-secondary" onClick={closePanel}>
               {t.cancel}

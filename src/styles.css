@@ -161,11 +161,54 @@ details.names {
   margin-bottom: 12px;
 }
 
-details.names summary {
-  font-size: 14px;
-  color: var(--text-muted);
+.names-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--green-dark);
   cursor: pointer;
-  padding: 8px 4px;
+  list-style: none;
+}
+
+.names-summary::-webkit-details-marker {
+  display: none;
+}
+
+.names-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+details.names[open] .names-chevron {
+  transform: rotate(180deg);
+}
+
+.names-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.clear-names {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.clear-names:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .names-grid {
