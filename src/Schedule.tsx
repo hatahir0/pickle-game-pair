@@ -105,9 +105,20 @@ export default function Schedule({
             ))}
             <div className={`rest-row ${round.resting.length === 0 ? 'none' : ''}`}>
               <span aria-hidden="true">🪑</span>
-              {round.resting.length === 0
-                ? t.restNone
-                : `${t.rest}: ${round.resting.map(nameOf).join(', ')}`}
+              {round.resting.length === 0 ? (
+                <span>{t.restNone}</span>
+              ) : (
+                <>
+                  <span className="rest-label">{t.rest}</span>
+                  <span className="rest-chips">
+                    {round.resting.map((p) => (
+                      <span key={p} className="chip rest-chip">
+                        {nameOf(p)}
+                      </span>
+                    ))}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         )

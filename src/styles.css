@@ -333,18 +333,34 @@ details.names summary {
 .rest-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
   background: var(--amber-pale);
   border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 13px;
+  padding: 10px;
+  font-size: 14px;
   color: var(--amber-text);
 }
 
 .rest-row.none {
   background: var(--green-pale);
   color: var(--green-darker);
+}
+
+.rest-label {
+  font-weight: 600;
+}
+
+.rest-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rest-chip {
+  background: #f3d29a;
+  color: var(--amber-text);
 }
 
 .game-check-label {
