@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { generateSchedule } from './scheduler'
+import { generateSchedule, regenerateRemaining } from './scheduler'
 import { loadLang, messages, saveLang, type Lang } from './i18n'
 import { clearSession, loadSession, saveSession, type Session } from './types'
 import Setup from './Setup'
@@ -26,7 +26,14 @@ export default function App() {
 
   const start = (playerNames: string[], courts: number, totalGames: number) => {
     const rounds = generateSchedule(playerNames.length, courts, totalGames)
-    const s: Session = { playerNames, courts, totalGames, rounds, done: rounds.map(() => false) }
+    const s: Session = {
+      playerNames,
+      courts,
+      totalGames,
+      rounds,
+      done: rounds.map(() => false),
+      leftPlayers: [],
+    }
     setSession(s)
     saveSession(s)
     setView('schedule')
@@ -40,8 +47,30 @@ export default function App() {
   const regenerate = () => {
     if (!session) return
     if (!window.confirm(t.confirmRegenerate)) return
-    const rounds = generateSchedule(session.playerNames.length, session.courts, session.totalGames)
-    update({ ...session, rounds, done: rounds.map(() => false) })
+    const done = session.rounds.map(() => false)
+    const rounds = regenerateRemaining(
+      session.rounds,
+      done,
+      session.playerNames.length,
+      session.leftPlayers,
+      session.courts,
+    )
+    update({ ...session, rounds, done })
+  }
+
+  const leave = (indices: number[]) => {
+    if (!session || indices.length === 0) return
+    const leftPlayers = Array.from(new Set([...session.leftPlayers, ...indices])).sort(
+      (a, b) => a - b,
+    )
+    const rounds = regenerateRemaining(
+      session.rounds,
+      session.done,
+      session.playerNames.length,
+      leftPlayers,
+      session.courts,
+    )
+    update({ ...session, rounds, leftPlayers })
   }
 
   const backToSetup = () => {
@@ -82,6 +111,7 @@ export default function App() {
           onSummary={() => setView('summary')}
           onRegenerate={regenerate}
           onBackToSetup={backToSetup}
+          onLeave={leave}
         />
       )}
 

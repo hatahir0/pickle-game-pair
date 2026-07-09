@@ -28,6 +28,13 @@ export interface Messages {
   confirmRegenerate: string
   newSession: string
   confirmNew: string
+  someoneLeaves: string
+  leavePrompt: string
+  leaveApply: string
+  leaveConfirm: (names: string) => string
+  leaveTooFew: string
+  leftLabel: string
+  cancel: string
   pairRepeat: (n: number) => string
   summaryTitle: string
   colPlayer: string
@@ -63,6 +70,14 @@ export const messages: Record<Lang, Messages> = {
     confirmRegenerate: '同じ設定で組み合わせを作り直します。今の表は消えますがよいですか？',
     newSession: '設定に戻る',
     confirmNew: '設定画面に戻ります。今のスケジュールは消えますがよいですか？',
+    someoneLeaves: '途中で抜ける人',
+    leavePrompt: 'この先のゲームから外す人を選んでください（完了済みはそのまま）',
+    leaveApply: '外して組み直す',
+    leaveConfirm: (names: string) =>
+      `${names} をこの先のゲームから外し、残りを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
+    leaveTooFew: '残りが4人未満になるため、これ以上は外せません',
+    leftLabel: '離脱',
+    cancel: 'キャンセル',
     pairRepeat: (n: number) => `${n}回目`,
     summaryTitle: '結果サマリー',
     colPlayer: 'プレイヤー',
@@ -97,6 +112,14 @@ export const messages: Record<Lang, Messages> = {
     confirmRegenerate: 'Reshuffle with the same settings? The current schedule will be replaced.',
     newSession: 'Back to setup',
     confirmNew: 'Go back to setup? The current schedule will be lost.',
+    someoneLeaves: 'Someone leaving',
+    leavePrompt: 'Select who is leaving (removed from upcoming games; finished games stay)',
+    leaveApply: 'Remove & rebuild',
+    leaveConfirm: (names: string) =>
+      `Remove ${names} from upcoming games and rebuild the rest? Finished games are kept.`,
+    leaveTooFew: 'Cannot remove more — fewer than 4 players would remain',
+    leftLabel: 'Left',
+    cancel: 'Cancel',
     pairRepeat: (n: number) => `${ordinalEn(n)} time`,
     summaryTitle: 'Summary',
     colPlayer: 'Player',

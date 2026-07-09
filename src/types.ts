@@ -6,6 +6,7 @@ export interface Session {
   totalGames: number
   rounds: Round[]
   done: boolean[]
+  leftPlayers: number[]
 }
 
 const SESSION_KEY = 'pgp-session-v1'
@@ -20,6 +21,7 @@ export function loadSession(): Session | null {
       const cr = typeof s.currentRound === 'number' ? s.currentRound : 0
       s.done = s.rounds.map((_, i) => i < cr)
     }
+    if (!Array.isArray(s.leftPlayers)) s.leftPlayers = []
     return s
   } catch {
     return null

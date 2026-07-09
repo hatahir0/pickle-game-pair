@@ -1,4 +1,11 @@
-import { generateSchedule, computeStats, countRepeatedPairs, mulberry32 } from '../src/scheduler'
+import {
+  generateSchedule,
+  regenerateRemaining,
+  computeStats,
+  countRepeatedPairs,
+  mulberry32,
+} from '../src/scheduler'
+import type { Round } from '../src/scheduler'
 
 let failures = 0
 
@@ -56,6 +63,75 @@ function run(players: number, courts: number, games: number, seed: number) {
   )
 }
 
+function roundKey(r: Round): string {
+  return JSON.stringify(r)
+}
+
+// 途中離脱：完了済みは保持し、未完了だけ離脱者を除いて組み直す
+function runLeave(
+  players: number,
+  courts: number,
+  games: number,
+  doneCount: number,
+  leaver: number,
+  seed: number,
+) {
+  const rng = mulberry32(seed)
+  const original = generateSchedule(players, courts, games, rng)
+  const done = original.map((_, i) => i < doneCount)
+  const rebuilt = regenerateRemaining(original, done, players, [leaver], courts, mulberry32(seed + 99))
+
+  check(rebuilt.length === original.length, `leave: game count changed ${rebuilt.length} != ${original.length}`)
+
+  // 1) 完了済みゲームは1バイトも変わらない
+  for (let i = 0; i < doneCount; i++) {
+    check(roundKey(rebuilt[i]) === roundKey(original[i]), `leave: done game ${i + 1} was modified`)
+  }
+
+  // 2) 未完了ゲームに離脱者が一切登場しない
+  for (let i = doneCount; i < rebuilt.length; i++) {
+    const r = rebuilt[i]
+    const appears =
+      r.games.some((g) => [...g.pairA, ...g.pairB].includes(leaver)) || r.resting.includes(leaver)
+    check(!appears, `leave: leaver ${leaver} appears in rebuilt game ${i + 1}`)
+    // プレイヤーの重複なし・4の倍数
+    const seen = new Set<number>()
+    for (const g of r.games) for (const p of [...g.pairA, ...g.pairB]) {
+      check(!seen.has(p), `leave: game ${i + 1} player ${p} twice`)
+      seen.add(p)
+    }
+  }
+
+  // 3) 未完了ゲームの、残りメンバーのプレイ/休憩偏りが妥当
+  const active = [...Array(players).keys()].filter((i) => i !== leaver)
+  const tailStats = computeStats(rebuilt.slice(doneCount), players)
+  const plays = active.map((i) => tailStats[i].plays)
+  const rests = active.map((i) => tailStats[i].rests)
+  const spread = Math.max(...plays) - Math.min(...plays)
+  const restSpread = Math.max(...rests) - Math.min(...rests)
+  check(spread <= 2, `leave: tail play spread ${spread} > 2 (${plays.join(',')})`)
+  check(restSpread <= 2, `leave: tail rest spread ${restSpread} > 2 (${rests.join(',')})`)
+
+  console.log(
+    `leave players=${players} courts=${courts} games=${games} done=${doneCount} leaver=${leaver} seed=${seed}` +
+      ` | tail plays ${Math.min(...plays)}-${Math.max(...plays)} | OK`,
+  )
+}
+
+// 4) 残り4人未満なら例外
+function runLeaveTooFew() {
+  const rounds = generateSchedule(5, 1, 6, mulberry32(1))
+  const done = rounds.map(() => false)
+  let threw = false
+  try {
+    regenerateRemaining(rounds, done, 5, [0, 1], 1, mulberry32(2))
+  } catch {
+    threw = true
+  }
+  check(threw, 'leave: expected throw when fewer than 4 remain')
+  console.log('leave too-few guard | OK')
+}
+
 const configs: [number, number, number][] = [
   [8, 2, 15],
   [10, 2, 15],
@@ -71,6 +147,14 @@ const configs: [number, number, number][] = [
 for (const [p, c, g] of configs) {
   for (const seed of [1, 2, 3]) run(p, c, g, seed)
 }
+
+console.log('\n--- mid-session leave ---')
+for (const seed of [1, 2, 3]) {
+  runLeave(8, 2, 15, 3, 5, seed) // 8人→7人（2コート→1コートに自然減）
+  runLeave(12, 3, 15, 4, 2, seed) // 12人→11人
+  runLeave(10, 2, 15, 0, 0, seed) // 開始前に離脱（全ゲーム組み直し）
+}
+runLeaveTooFew()
 
 if (failures > 0) {
   console.log(`\n${failures} check(s) FAILED`)

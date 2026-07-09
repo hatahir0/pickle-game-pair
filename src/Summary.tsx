@@ -13,9 +13,10 @@ export default function Summary({
   onBack: () => void
   onBackToSetup: () => void
 }) {
-  const { rounds, playerNames } = session
+  const { rounds, playerNames, leftPlayers } = session
   const stats = computeStats(rounds, playerNames.length)
   const repeated = countRepeatedPairs(rounds)
+  const leftSet = new Set(leftPlayers)
   const nameOf = (i: number) => playerNames[i] || String(i + 1)
 
   return (
@@ -32,8 +33,11 @@ export default function Summary({
           </thead>
           <tbody>
             {stats.map((s, i) => (
-              <tr key={i}>
-                <td>{nameOf(i)}</td>
+              <tr key={i} className={leftSet.has(i) ? 'left-row' : ''}>
+                <td>
+                  {nameOf(i)}
+                  {leftSet.has(i) && <span className="left-tag">🚪 {t.leftLabel}</span>}
+                </td>
                 <td className="num">{s.plays}</td>
                 <td className="num">{s.rests}</td>
               </tr>

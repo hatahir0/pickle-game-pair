@@ -430,3 +430,85 @@ details.names summary {
   color: var(--text-muted);
   margin-top: 24px;
 }
+
+.left-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  background: var(--amber-pale);
+  color: var(--amber-text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.left-chip {
+  background: #f3d29a;
+  color: var(--amber-text);
+  min-width: 30px;
+  height: 30px;
+  font-size: 15px;
+}
+
+.leave-panel {
+  margin-top: 8px;
+}
+
+.leave-prompt {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.leave-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pick-chip {
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--green-darker);
+  cursor: pointer;
+}
+
+.pick-chip.picked {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.hint.warn {
+  margin-top: 10px;
+}
+
+.leave-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.summary-table tr.left-row td {
+  color: var(--text-muted);
+}
+
+.left-tag {
+  display: inline-block;
+  font-size: 10px;
+  background: var(--amber-pale);
+  color: var(--amber-text);
+  border-radius: 999px;
+  padding: 1px 7px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 600;
+}

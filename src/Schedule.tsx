@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Messages } from './i18n'
 import type { Session } from './types'
 import type { Game } from './scheduler'
@@ -45,6 +45,7 @@ export default function Schedule({
   onSummary,
   onRegenerate,
   onBackToSetup,
+  onLeave,
 }: {
   t: Messages
   session: Session
@@ -52,12 +53,21 @@ export default function Schedule({
   onSummary: () => void
   onRegenerate: () => void
   onBackToSetup: () => void
+  onLeave: (indices: number[]) => void
 }) {
-  const { rounds, playerNames, totalGames, done } = session
+  const { rounds, playerNames, totalGames, done, leftPlayers } = session
   const doneCount = done.filter(Boolean).length
   const finished = rounds.length > 0 && doneCount === rounds.length
   const firstOpen = done.findIndex((d) => !d)
   const currentRef = useRef<HTMLDivElement>(null)
+
+  const [leavePanel, setLeavePanel] = useState(false)
+  const [picked, setPicked] = useState<Set<number>>(new Set())
+
+  const leftSet = new Set(leftPlayers)
+  const activePlayers = playerNames.map((_, i) => i).filter((i) => !leftSet.has(i))
+  const remainingAfter = activePlayers.length - picked.size
+  const tooFew = remainingAfter < 4
 
   const nameOf = (i: number) => playerNames[i] || String(i + 1)
 
@@ -71,9 +81,45 @@ export default function Schedule({
     onUpdate({ ...session, done: next })
   }
 
+  const togglePicked = (i: number) => {
+    const next = new Set(picked)
+    if (next.has(i)) next.delete(i)
+    else next.add(i)
+    setPicked(next)
+  }
+
+  const closePanel = () => {
+    setLeavePanel(false)
+    setPicked(new Set())
+  }
+
+  const applyLeave = () => {
+    if (picked.size === 0 || tooFew) return
+    const names = [...picked].sort((a, b) => a - b).map(nameOf).join(t.sep)
+    if (!window.confirm(t.leaveConfirm(names))) return
+    onLeave([...picked])
+    closePanel()
+  }
+
   return (
     <>
       <div className="progress">{t.gamesProgress(doneCount, totalGames)}</div>
+
+      {leftPlayers.length > 0 && (
+        <div className="left-note">
+          <span aria-hidden="true">🚪</span>
+          <span className="rest-label">{t.leftLabel}</span>
+          <span className="rest-chips">
+            {[...leftPlayers]
+              .sort((a, b) => a - b)
+              .map((p) => (
+                <span key={p} className="chip left-chip">
+                  {nameOf(p)}
+                </span>
+              ))}
+          </span>
+        </div>
+      )}
 
       {rounds.map((round, i) => {
         const isDone = done[i]
@@ -133,7 +179,51 @@ export default function Schedule({
         </>
       )}
 
+      {!finished && leavePanel && (
+        <div className="leave-panel card">
+          <p className="leave-prompt">{t.leavePrompt}</p>
+          <div className="leave-chips">
+            {activePlayers.map((i) => (
+              <button
+                key={i}
+                className={`chip pick-chip ${picked.has(i) ? 'picked' : ''}`}
+                aria-pressed={picked.has(i)}
+                onClick={() => togglePicked(i)}
+              >
+                {nameOf(i)}
+              </button>
+            ))}
+          </div>
+          {tooFew && picked.size > 0 && <div className="hint warn">{t.leaveTooFew}</div>}
+          <div className="leave-actions">
+            <button
+              className="btn-primary"
+              disabled={picked.size === 0 || tooFew}
+              onClick={applyLeave}
+            >
+              {t.leaveApply}
+            </button>
+            <button className="btn-secondary" onClick={closePanel}>
+              {t.cancel}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="footer-links">
+        {!finished && (
+          <button className="btn-secondary" onClick={onSummary}>
+            📊 {t.toSummary}
+          </button>
+        )}
+        {!finished && (
+          <button
+            className="btn-secondary"
+            onClick={() => (leavePanel ? closePanel() : setLeavePanel(true))}
+          >
+            🚪 {t.someoneLeaves}
+          </button>
+        )}
         <button className="btn-secondary" onClick={onRegenerate}>
           🔀 {t.regenerate}
         </button>
