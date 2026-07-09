@@ -565,3 +565,73 @@ details.names summary {
   background: var(--green-pale);
   color: var(--green-darker);
 }
+
+.reg-title {
+  font-size: 20px;
+  color: var(--text);
+  margin-top: 8px;
+}
+
+.reg-field {
+  margin-bottom: 12px;
+}
+
+.reg-field:last-child {
+  margin-bottom: 4px;
+}
+
+.reg-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.reg-field .req {
+  color: #c0392b;
+}
+
+.reg-field input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.reg-error {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.reg-note {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--amber-text);
+  background: var(--amber-pale);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 14px;
+  line-height: 1.55;
+}
+
+.reg-fine {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.reg-contact {
+  margin-top: 8px;
+}
+
+.reg-contact-label {
+  color: var(--text);
+  font-weight: 600;
+}

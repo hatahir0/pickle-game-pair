@@ -45,6 +45,22 @@ export interface Messages {
   barJoin: string
   barReshuffle: string
   barSetup: string
+  regHeading: string
+  regSub: string
+  regName: string
+  regOrg: string
+  regEmail: string
+  regSource: string
+  regNamePh: string
+  regOrgPh: string
+  regEmailPh: string
+  regSourcePh: string
+  regSubmit: string
+  regMailNote: string
+  regMadeNote: string
+  regContactLabel: string
+  regErrRequired: string
+  regErrEmail: string
   pairRepeat: (n: number) => string
   summaryTitle: string
   colPlayer: string
@@ -99,6 +115,25 @@ export const messages: Record<Lang, Messages> = {
     barJoin: '入る',
     barReshuffle: '作り直す',
     barSetup: '設定',
+    regHeading: 'はじめまして',
+    regSub:
+      'このアプリは無料で公開しています。どんな方に使われているかを知り、改善に役立てたいので、初回だけご登録ください。次回からは表示されません。',
+    regName: 'お名前',
+    regOrg: '所属団体名',
+    regEmail: 'メールアドレス',
+    regSource: 'このアプリを誰から聞きましたか？',
+    regNamePh: '山田 太郎',
+    regOrgPh: 'みたかピックルクラブ',
+    regEmailPh: 'you@example.com',
+    regSourcePh: '友人・知人の名前、SNS など',
+    regSubmit: 'はじめる',
+    regMailNote:
+      'メールアドレスは、利用状況の確認およびアプリ改善のヒアリングに使う場合があります。広告や第三者への共有はしません。',
+    regMadeNote:
+      '本アプリは、三鷹のピックルボールクラブ「002みたか」のメンバーが作成しています。動作の保証はありません。',
+    regContactLabel: '連絡先',
+    regErrRequired: 'すべての項目を入力してください',
+    regErrEmail: 'メールアドレスの形式が正しくありません',
     pairRepeat: (n: number) => `${n}回目`,
     summaryTitle: '結果サマリー',
     colPlayer: 'プレイヤー',
@@ -152,6 +187,25 @@ export const messages: Record<Lang, Messages> = {
     barJoin: 'Join',
     barReshuffle: 'Reshuffle',
     barSetup: 'Setup',
+    regHeading: 'Welcome',
+    regSub:
+      "This app is free to use. To understand who's using it and keep improving it, please register once. You won't be asked again.",
+    regName: 'Your name',
+    regOrg: 'Organization / club',
+    regEmail: 'Email',
+    regSource: 'How did you hear about this app?',
+    regNamePh: 'Alex Kim',
+    regOrgPh: 'Sunrise Pickle Club',
+    regEmailPh: 'you@example.com',
+    regSourcePh: 'A friend, social media, etc.',
+    regSubmit: 'Get started',
+    regMailNote:
+      'Your email may be used to check usage and to ask for feedback to improve the app. It is never used for ads or shared with third parties.',
+    regMadeNote:
+      'This app is made by a member of “002 Mitaka”, a pickleball club in Mitaka. Provided as is, with no warranty.',
+    regContactLabel: 'Contact',
+    regErrRequired: 'Please fill in all fields',
+    regErrEmail: 'Please enter a valid email address',
     pairRepeat: (n: number) => `${ordinalEn(n)} time`,
     summaryTitle: 'Summary',
     colPlayer: 'Player',

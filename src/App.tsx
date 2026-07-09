@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react'
 import { generateSchedule, regenerateRemaining } from './scheduler'
 import { loadLang, messages, saveLang, type Lang } from './i18n'
 import { clearSession, loadSession, saveSession, type Session } from './types'
+import { flushPending, isRegistered } from './registration'
 import Setup from './Setup'
 import Schedule from './Schedule'
 import Summary from './Summary'
+import Register from './Register'
 import PickleLogo from './PickleLogo'
 
 type View = 'setup' | 'schedule' | 'summary'
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => loadLang())
+  const [registered, setRegistered] = useState<boolean>(() => isRegistered())
   const [session, setSession] = useState<Session | null>(() => loadSession())
   const [view, setView] = useState<View>(session ? 'schedule' : 'setup')
   const t = messages[lang]
@@ -18,6 +21,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang
   }, [lang])
+
+  useEffect(() => {
+    void flushPending()
+  }, [])
 
   const changeLang = (l: Lang) => {
     setLang(l)
@@ -97,7 +104,7 @@ export default function App() {
     <>
       <div className="header">
         <span className="title">
-          {view !== 'setup' && (
+          {registered && view !== 'setup' && (
             <>
               <PickleLogo size={26} />
               {t.appName}
@@ -114,9 +121,11 @@ export default function App() {
         </div>
       </div>
 
-      {view === 'setup' && <Setup t={t} onStart={start} />}
+      {!registered && <Register t={t} onDone={() => setRegistered(true)} />}
 
-      {view === 'schedule' && session && (
+      {registered && view === 'setup' && <Setup t={t} onStart={start} />}
+
+      {registered && view === 'schedule' && session && (
         <Schedule
           t={t}
           session={session}
@@ -129,7 +138,7 @@ export default function App() {
         />
       )}
 
-      {view === 'summary' && session && (
+      {registered && view === 'summary' && session && (
         <Summary
           t={t}
           session={session}
