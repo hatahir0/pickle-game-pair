@@ -5,6 +5,7 @@ import { clearSession, loadSession, saveSession, type Session } from './types'
 import Setup from './Setup'
 import Schedule from './Schedule'
 import Summary from './Summary'
+import PickleLogo from './PickleLogo'
 
 type View = 'setup' | 'schedule' | 'summary'
 
@@ -53,7 +54,14 @@ export default function App() {
   return (
     <>
       <div className="header">
-        <span className="title">{view === 'setup' ? '' : t.appName}</span>
+        <span className="title">
+          {view !== 'setup' && (
+            <>
+              <PickleLogo size={26} />
+              {t.appName}
+            </>
+          )}
+        </span>
         <div className="lang-toggle" role="group" aria-label="language">
           <button className={lang === 'ja' ? 'active' : ''} onClick={() => changeLang('ja')}>
             日本語
