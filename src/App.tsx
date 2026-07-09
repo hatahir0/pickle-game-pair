@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { generateSchedule, regenerateRemaining } from './scheduler'
 import { loadLang, messages, saveLang, type Lang } from './i18n'
 import { clearSession, loadSession, saveSession, type Session } from './types'
-import { flushPending, isRegistered } from './registration'
+import { flushPending, isRegistered, CONTACT_EMAIL, CONTACT_NAME } from './registration'
 import Setup from './Setup'
 import Schedule from './Schedule'
 import Summary from './Summary'
@@ -147,7 +147,20 @@ export default function App() {
         />
       )}
 
-      <footer className="app-credit">created by 002みたか</footer>
+      <footer className="app-credit">
+        {registered ? (
+          <>
+            <p>{t.regMadeNote}</p>
+            <p className="credit-contact">
+              {t.regContactLabel}: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+              {' · '}
+              {CONTACT_NAME}
+            </p>
+          </>
+        ) : (
+          'created by 002みたか'
+        )}
+      </footer>
     </>
   )
 }
