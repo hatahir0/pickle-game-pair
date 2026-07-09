@@ -15,6 +15,7 @@ export interface Messages {
   courts: string
   games: string
   playerNames: string
+  playerNamesHint: string
   namePlaceholder: (n: number) => string
   clearNames: string
   generate: string
@@ -38,9 +39,10 @@ export interface Messages {
   cancel: string
   someoneJoins: string
   joinPrompt: string
+  joinNumberLabel: string
+  joinNameLabel: string
   joinNamePlaceholder: string
-  joinApplyNamed: (name: string) => string
-  joinApplyNumber: (n: number) => string
+  joinApply: string
   joinConfirm: (name: string) => string
   barSummary: string
   barLeave: string
@@ -84,7 +86,8 @@ export const messages: Record<Lang, Messages> = {
     players: '参加人数',
     courts: 'コート数',
     games: 'ゲーム数',
-    playerNames: '名前を入力（任意・未入力は番号）',
+    playerNames: '名前を付ける（任意）',
+    playerNamesHint: 'プレイヤーは番号（1, 2, 3…）です。名前を付けたい人だけどうぞ。',
     namePlaceholder: (n: number) => `プレイヤー ${n}`,
     clearNames: '名前をクリア',
     generate: '組み合わせを作る',
@@ -108,10 +111,11 @@ export const messages: Record<Lang, Messages> = {
     leftLabel: '離脱',
     cancel: 'キャンセル',
     someoneJoins: '途中から入る人',
-    joinPrompt: 'あとから来た人を1名追加します。名前は任意で、未入力なら番号になります。',
-    joinNamePlaceholder: '名前（任意・空でOK）',
-    joinApplyNamed: (name: string) => `「${name}」を追加`,
-    joinApplyNumber: (n: number) => `番号「${n}」で追加`,
+    joinPrompt: 'あとから来た人を1名追加します。',
+    joinNumberLabel: '番号',
+    joinNameLabel: '名前（任意）',
+    joinNamePlaceholder: '空でOK（番号のまま）',
+    joinApply: '追加',
     joinConfirm: (name: string) =>
       `${name} を追加し、この先のゲームを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
     barSummary: 'サマリー',
@@ -158,7 +162,8 @@ export const messages: Record<Lang, Messages> = {
     players: 'Players',
     courts: 'Courts',
     games: 'Games',
-    playerNames: 'Player names (optional, numbers by default)',
+    playerNames: 'Add names (optional)',
+    playerNamesHint: 'Players are numbered (1, 2, 3…). Add names only if you like.',
     namePlaceholder: (n: number) => `Player ${n}`,
     clearNames: 'Clear names',
     generate: 'Create schedule',
@@ -182,10 +187,11 @@ export const messages: Record<Lang, Messages> = {
     leftLabel: 'Left',
     cancel: 'Cancel',
     someoneJoins: 'Add player',
-    joinPrompt: 'Add one player who just arrived. The name is optional — leave it blank to use a number.',
-    joinNamePlaceholder: 'Name (optional)',
-    joinApplyNamed: (name: string) => `Add "${name}"`,
-    joinApplyNumber: (n: number) => `Add as "${n}"`,
+    joinPrompt: 'Add one player who just arrived.',
+    joinNumberLabel: 'Number',
+    joinNameLabel: 'Name (optional)',
+    joinNamePlaceholder: 'Leave blank to keep the number',
+    joinApply: 'Add',
     joinConfirm: (name: string) =>
       `Add ${name} and rebuild the upcoming games? Finished games are kept.`,
     barSummary: 'Summary',

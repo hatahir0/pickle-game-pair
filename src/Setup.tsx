@@ -106,6 +106,7 @@ export default function Setup({
           </span>
           <span className="names-chevron" aria-hidden="true">▾</span>
         </summary>
+        <p className="names-hint">{t.playerNamesHint}</p>
         <div className="names-actions">
           <button
             type="button"

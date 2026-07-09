@@ -190,6 +190,13 @@ details.names[open] .names-chevron {
   transform: rotate(180deg);
 }
 
+.names-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
 .names-actions {
   display: flex;
   justify-content: flex-end;
@@ -562,7 +569,24 @@ details.names[open] .names-chevron {
   border-radius: 8px;
   padding: 12px;
   font-size: 15px;
-  margin-bottom: 4px;
+}
+
+.join-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.join-field-label {
+  min-width: 72px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.join-field .join-input {
+  flex: 1;
 }
 
 .action-bar {

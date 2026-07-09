@@ -231,19 +231,24 @@ export default function Schedule({
       {!finished && panel === 'join' && (
         <div className="leave-panel card" ref={panelRef}>
           <p className="leave-prompt">{t.joinPrompt}</p>
-          <input
-            className="join-input"
-            value={joinName}
-            placeholder={t.joinNamePlaceholder}
-            maxLength={12}
-            onChange={(e) => setJoinName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && applyJoin()}
-          />
+          <div className="join-field">
+            <span className="join-field-label">{t.joinNumberLabel}</span>
+            <span className="chip">{playerNames.length + 1}</span>
+          </div>
+          <div className="join-field">
+            <span className="join-field-label">{t.joinNameLabel}</span>
+            <input
+              className="join-input"
+              value={joinName}
+              placeholder={t.joinNamePlaceholder}
+              maxLength={12}
+              onChange={(e) => setJoinName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applyJoin()}
+            />
+          </div>
           <div className="leave-actions">
             <button className="btn-primary" onClick={applyJoin}>
-              {joinName.trim()
-                ? t.joinApplyNamed(joinName.trim())
-                : t.joinApplyNumber(playerNames.length + 1)}
+              {t.joinApply}
             </button>
             <button className="btn-secondary" onClick={closePanel}>
               {t.cancel}
