@@ -44,7 +44,7 @@ export interface Messages {
 
 export const messages: Record<Lang, Messages> = {
   ja: {
-    appName: 'ピックルゲームペア',
+    appName: 'Pickle Game Pair',
     tagline: 'ダブルスの組み合わせを自動作成',
     players: '参加人数',
     courts: 'コート数',

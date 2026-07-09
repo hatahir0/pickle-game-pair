@@ -10,8 +10,8 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'ピックルゲームペア',
-        short_name: 'ゲームペア',
+        name: 'Pickle Game Pair',
+        short_name: 'Pickle Pair',
         description: 'ピックルボールのダブルス組み合わせを自動作成',
         lang: 'ja',
         theme_color: '#1D9E75',

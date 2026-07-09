@@ -404,3 +404,10 @@ details.names summary {
   gap: 8px;
   margin-top: 16px;
 }
+
+.app-credit {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 24px;
+}

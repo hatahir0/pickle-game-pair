@@ -85,6 +85,8 @@ export default function App() {
           onBackToSetup={backToSetup}
         />
       )}
+
+      <footer className="app-credit">created by 002みたか</footer>
     </>
   )
 }
