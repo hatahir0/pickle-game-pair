@@ -157,18 +157,9 @@ export default function Schedule({
             ref={isCurrent ? currentRef : undefined}
           >
             <div className="round-head">
-              <label className="game-check-label">
-                <input
-                  type="checkbox"
-                  className="game-check"
-                  checked={isDone}
-                  onChange={() => toggle(i)}
-                  aria-label={`${t.game} ${i + 1}`}
-                />
-                <span className="game-title">
-                  {t.game} {i + 1}
-                </span>
-              </label>
+              <span className="game-title">
+                {t.game} {i + 1}
+              </span>
               {isCurrent && <span className="badge now">{t.current}</span>}
             </div>
             {round.games.map((g, j) => (
@@ -191,6 +182,14 @@ export default function Schedule({
                 </>
               )}
             </div>
+            <button
+              type="button"
+              className={`game-done-btn ${isDone ? 'done' : ''}`}
+              aria-pressed={isDone}
+              onClick={() => toggle(i)}
+            >
+              {isDone ? t.gameUndo : t.gameFinish}
+            </button>
           </div>
         )
       })}

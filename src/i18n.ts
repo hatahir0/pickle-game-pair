@@ -19,12 +19,18 @@ export interface Messages {
   namePlaceholder: (n: number) => string
   clearNames: string
   generate: string
+  defaultsTitle: string
+  defaultsSub: string
+  defaultsSave: string
+  defaultsSaveStart: string
   effectiveCourts: (n: number) => string
   game: string
   court: string
   rest: string
   restNone: string
   current: string
+  gameFinish: string
+  gameUndo: string
   toSummary: string
   regenerate: string
   confirmRegenerate: string
@@ -91,12 +97,18 @@ export const messages: Record<Lang, Messages> = {
     namePlaceholder: (n: number) => `プレイヤー ${n}`,
     clearNames: '名前をクリア',
     generate: '組み合わせを作る',
+    defaultsTitle: 'デフォルト設定',
+    defaultsSub: 'よく使う人数・コート数・ゲーム数を決めておくと、設定画面が毎回この値から始まります。',
+    defaultsSave: '保存',
+    defaultsSaveStart: '保存して始める',
     effectiveCourts: (n: number) => `※ 人数の都合で同時に使うのは ${n} 面です`,
     game: 'ゲーム',
     court: 'コート',
     rest: '休憩',
     restNone: '休憩なし（全員プレイ）',
     current: 'いまここ',
+    gameFinish: 'このゲームを終了',
+    gameUndo: '✓ 終了済み（タップで戻す）',
     toSummary: 'サマリーを見る',
     regenerate: '作り直す',
     confirmRegenerate: '同じ設定で組み合わせを作り直します。今の表は消えますがよいですか？',
@@ -167,12 +179,19 @@ export const messages: Record<Lang, Messages> = {
     namePlaceholder: (n: number) => `Player ${n}`,
     clearNames: 'Clear names',
     generate: 'Create schedule',
+    defaultsTitle: 'Default settings',
+    defaultsSub:
+      'Set the player, court, and game counts you usually use — the setup screen starts from these each time.',
+    defaultsSave: 'Save',
+    defaultsSaveStart: 'Save and start',
     effectiveCourts: (n: number) => `Only ${n} court(s) used at once for this player count`,
     game: 'Game',
     court: 'Court',
     rest: 'Resting',
     restNone: 'Everyone plays',
     current: 'Now',
+    gameFinish: 'Finish this game',
+    gameUndo: '✓ Finished (tap to undo)',
     toSummary: 'View summary',
     regenerate: 'Reshuffle',
     confirmRegenerate: 'Reshuffle with the same settings? The current schedule will be replaced.',

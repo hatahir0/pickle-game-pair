@@ -413,20 +413,28 @@ details.names[open] .names-chevron {
   color: var(--amber-text);
 }
 
-.game-check-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+.game-done-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px;
+  border: 2px solid var(--green);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--green-dark);
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.game-check {
-  width: 26px;
-  height: 26px;
-  accent-color: var(--green);
-  cursor: pointer;
-  margin: 0;
-  flex-shrink: 0;
+.game-done-btn:active {
+  background: var(--green-pale);
+}
+
+.game-done-btn.done {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
 }
 
 .summary-table {

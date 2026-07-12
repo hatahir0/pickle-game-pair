@@ -3,20 +3,25 @@ import { generateSchedule, regenerateRemaining } from './scheduler'
 import { loadLang, messages, saveLang, type Lang } from './i18n'
 import { clearSession, loadSession, saveSession, type Session } from './types'
 import { flushPending, isRegistered, CONTACT_EMAIL, CONTACT_NAME } from './registration'
+import { hasDefaults } from './defaults'
 import Setup from './Setup'
 import Schedule from './Schedule'
 import Summary from './Summary'
 import Register from './Register'
+import DefaultSettings from './DefaultSettings'
 import PickleLogo from './PickleLogo'
 
-type View = 'setup' | 'schedule' | 'summary'
+type View = 'setup' | 'schedule' | 'summary' | 'defaults'
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => loadLang())
   const [registered, setRegistered] = useState<boolean>(() => isRegistered())
+  const [defaultsSet, setDefaultsSet] = useState<boolean>(() => hasDefaults())
   const [session, setSession] = useState<Session | null>(() => loadSession())
   const [view, setView] = useState<View>(session ? 'schedule' : 'setup')
   const t = messages[lang]
+
+  const onboarding = registered && !defaultsSet
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -104,7 +109,7 @@ export default function App() {
     <>
       <div className="header">
         <span className="title">
-          {registered && view !== 'setup' && (
+          {registered && defaultsSet && (view === 'schedule' || view === 'summary') && (
             <>
               <PickleLogo size={26} />
               {t.appName}
@@ -123,9 +128,24 @@ export default function App() {
 
       {!registered && <Register t={t} onDone={() => setRegistered(true)} />}
 
-      {registered && view === 'setup' && <Setup t={t} onStart={start} />}
+      {onboarding && (
+        <DefaultSettings t={t} onboarding onSaved={() => setDefaultsSet(true)} />
+      )}
 
-      {registered && view === 'schedule' && session && (
+      {registered && defaultsSet && view === 'defaults' && (
+        <DefaultSettings
+          t={t}
+          onboarding={false}
+          onSaved={() => setView('setup')}
+          onCancel={() => setView('setup')}
+        />
+      )}
+
+      {registered && defaultsSet && view === 'setup' && (
+        <Setup t={t} onStart={start} onOpenDefaults={() => setView('defaults')} />
+      )}
+
+      {registered && defaultsSet && view === 'schedule' && session && (
         <Schedule
           t={t}
           session={session}
@@ -138,7 +158,7 @@ export default function App() {
         />
       )}
 
-      {registered && view === 'summary' && session && (
+      {registered && defaultsSet && view === 'summary' && session && (
         <Summary
           t={t}
           session={session}

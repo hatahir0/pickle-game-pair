@@ -1,70 +1,38 @@
 import { useState } from 'react'
 import type { Messages } from './i18n'
+import { loadDefaults } from './defaults'
+import Stepper from './Stepper'
 import PickleLogo from './PickleLogo'
 
-const SETUP_KEY = 'pgp-setup-v1'
+const NAMES_KEY = 'pgp-names-v1'
 
-interface SetupValues {
-  players: number
-  courts: number
-  games: number
-  names: string[]
-}
-
-function loadSetup(): SetupValues {
+function loadNames(): string[] {
   try {
-    const raw = localStorage.getItem(SETUP_KEY)
+    const raw = localStorage.getItem(NAMES_KEY)
     if (raw) {
-      const s = JSON.parse(raw) as SetupValues
-      if (s.players >= 4) return s
+      const n = JSON.parse(raw)
+      if (Array.isArray(n)) return n
     }
   } catch {
     /* fall through */
   }
-  return { players: 8, courts: 2, games: 15, names: [] }
-}
-
-function Stepper({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string
-  value: number
-  min: number
-  max: number
-  onChange: (v: number) => void
-}) {
-  return (
-    <div className="stepper-row">
-      <span className="label">{label}</span>
-      <div className="stepper">
-        <button aria-label={`${label} -`} disabled={value <= min} onClick={() => onChange(value - 1)}>
-          −
-        </button>
-        <span className="value">{value}</span>
-        <button aria-label={`${label} +`} disabled={value >= max} onClick={() => onChange(value + 1)}>
-          ＋
-        </button>
-      </div>
-    </div>
-  )
+  return []
 }
 
 export default function Setup({
   t,
   onStart,
+  onOpenDefaults,
 }: {
   t: Messages
   onStart: (playerNames: string[], courts: number, totalGames: number) => void
+  onOpenDefaults: () => void
 }) {
-  const initial = loadSetup()
+  const initial = loadDefaults()
   const [players, setPlayers] = useState(initial.players)
   const [courts, setCourts] = useState(initial.courts)
   const [games, setGames] = useState(initial.games)
-  const [names, setNames] = useState<string[]>(initial.names)
+  const [names, setNames] = useState<string[]>(() => loadNames())
 
   const effectiveCourts = Math.min(courts, Math.floor(players / 4))
   const hasAnyName = names.some((n) => (n ?? '').trim() !== '')
@@ -80,7 +48,7 @@ export default function Setup({
 
   const start = () => {
     const playerNames = Array.from({ length: players }, (_, i) => (names[i] ?? '').trim())
-    localStorage.setItem(SETUP_KEY, JSON.stringify({ players, courts, games, names: playerNames }))
+    localStorage.setItem(NAMES_KEY, JSON.stringify(playerNames))
     onStart(playerNames, courts, games)
   }
 
@@ -133,6 +101,12 @@ export default function Setup({
       <button className="btn-primary" onClick={start}>
         {t.generate}
       </button>
+
+      <div className="footer-links">
+        <button className="btn-secondary" onClick={onOpenDefaults}>
+          ⚙️ {t.defaultsTitle}
+        </button>
+      </div>
     </>
   )
 }
