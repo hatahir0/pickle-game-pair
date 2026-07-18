@@ -505,6 +505,52 @@ details.names[open] .names-chevron {
   color: #fff;
 }
 
+.resume-sub {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 2px;
+  opacity: 0.85;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.menu-item:active {
+  background: var(--green-pale);
+}
+
+.menu-ico {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.menu-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.menu-sub {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 .qr-button {
   display: inline-flex;
   align-items: center;

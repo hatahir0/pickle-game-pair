@@ -37,7 +37,15 @@ export interface Messages {
   newSession: string
   confirmOverwrite: string
   resumeBanner: (done: number, total: number) => string
+  resumeSub: (players: number, courts: number) => string
+  menuNew: string
+  menuNewSub: string
+  menuDefaultsSub: string
+  menuQrTitle: string
+  menuQrSub: string
+  menuFeedbackSub: string
   locSchedule: string
+  locSetup: string
   someoneLeaves: string
   leavePrompt: string
   leaveTempApply: string
@@ -141,7 +149,15 @@ export const messages: Record<Lang, Messages> = {
     confirmOverwrite:
       '進行中のスケジュールがあります。新しく作ると今の表は消えますがよいですか？',
     resumeBanner: (done: number, total: number) => `▶ 続きから（ゲーム ${done} / ${total}）`,
+    resumeSub: (players: number, courts: number) => `${players}人 ・ ${courts}面`,
+    menuNew: '新しく組み合わせを作る',
+    menuNewSub: '人数・コート・ゲーム数を決めて開始',
+    menuDefaultsSub: 'いつもの人数・コート・ゲーム数',
+    menuQrTitle: '仲間に紹介（QR）',
+    menuQrSub: 'このアプリのURLをQRで共有',
+    menuFeedbackSub: '不具合や要望を送る',
     locSchedule: 'スケジュール',
+    locSetup: '組み合わせ設定',
     someoneLeaves: '途中で抜ける人',
     leavePrompt: 'この先のゲームから外す人を選んで、抜け方を選んでください（完了済みはそのまま）',
     leaveTempApply: '🚶 一時離脱（あとで戻る）',
@@ -253,7 +269,15 @@ export const messages: Record<Lang, Messages> = {
     confirmOverwrite:
       'You have a schedule in progress. Creating a new one will replace it. Continue?',
     resumeBanner: (done: number, total: number) => `▶ Resume (game ${done} / ${total})`,
+    resumeSub: (players: number, courts: number) => `${players} players ・ ${courts} courts`,
+    menuNew: 'Create a new matchup',
+    menuNewSub: 'Pick players, courts and games',
+    menuDefaultsSub: 'Your usual players, courts and games',
+    menuQrTitle: 'Share with friends (QR)',
+    menuQrSub: 'Show this app’s URL as a QR code',
+    menuFeedbackSub: 'Send a bug report or request',
     locSchedule: 'Schedule',
+    locSetup: 'Matchup setup',
     someoneLeaves: 'Someone leaving',
     leavePrompt: 'Select who is leaving, then choose how (finished games stay)',
     leaveTempApply: '🚶 Stepping out (coming back)',
