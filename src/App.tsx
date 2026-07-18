@@ -27,6 +27,16 @@ export default function App() {
 
   const onboarding = registered && !defaultsSet
 
+  // 初回のデフォルト設定を終えたとき。機能追加前から残っている古いセッションが
+  // あると、その古いスケジュール（前の設定・完了状態）へ自動復帰してしまうため、
+  // ここで破棄し、決めたばかりのデフォルトで設定画面から始める。
+  const finishOnboarding = () => {
+    clearSession()
+    setSession(null)
+    setView('setup')
+    setDefaultsSet(true)
+  }
+
   const openFeedback = () => {
     setReturnView(view)
     setView('feedback')
@@ -210,7 +220,7 @@ export default function App() {
       {!registered && <Register t={t} onDone={() => setRegistered(true)} />}
 
       {onboarding && (
-        <DefaultSettings t={t} onboarding onSaved={() => setDefaultsSet(true)} />
+        <DefaultSettings t={t} onboarding onSaved={finishOnboarding} />
       )}
 
       {registered && defaultsSet && view === 'defaults' && (
