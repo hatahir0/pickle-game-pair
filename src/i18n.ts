@@ -35,7 +35,9 @@ export interface Messages {
   regenerate: string
   confirmRegenerate: string
   newSession: string
-  confirmNew: string
+  confirmOverwrite: string
+  resumeBanner: (done: number, total: number) => string
+  locSchedule: string
   someoneLeaves: string
   leavePrompt: string
   leaveTempApply: string
@@ -135,8 +137,11 @@ export const messages: Record<Lang, Messages> = {
     toSummary: 'サマリーを見る',
     regenerate: '作り直す',
     confirmRegenerate: '同じ設定で組み合わせを作り直します。今の表は消えますがよいですか？',
-    newSession: '設定に戻る',
-    confirmNew: '設定画面に戻ります。今のスケジュールは消えますがよいですか？',
+    newSession: 'ホームに戻る',
+    confirmOverwrite:
+      '進行中のスケジュールがあります。新しく作ると今の表は消えますがよいですか？',
+    resumeBanner: (done: number, total: number) => `▶ 続きから（ゲーム ${done} / ${total}）`,
+    locSchedule: 'スケジュール',
     someoneLeaves: '途中で抜ける人',
     leavePrompt: 'この先のゲームから外す人を選んで、抜け方を選んでください（完了済みはそのまま）',
     leaveTempApply: '🚶 一時離脱（あとで戻る）',
@@ -169,7 +174,7 @@ export const messages: Record<Lang, Messages> = {
     barLeave: '抜ける',
     barJoin: '入る',
     barReshuffle: '作り直す',
-    barSetup: '設定',
+    barSetup: 'ホーム',
     regHeading: 'はじめまして',
     regSub:
       'このアプリは無料で公開しています。どんな方に使われているかを知り、改善に役立てたいので、初回だけご登録ください。次回からは表示されません。',
@@ -244,8 +249,11 @@ export const messages: Record<Lang, Messages> = {
     toSummary: 'View summary',
     regenerate: 'Reshuffle',
     confirmRegenerate: 'Reshuffle with the same settings? The current schedule will be replaced.',
-    newSession: 'Back to setup',
-    confirmNew: 'Go back to setup? The current schedule will be lost.',
+    newSession: 'Back to home',
+    confirmOverwrite:
+      'You have a schedule in progress. Creating a new one will replace it. Continue?',
+    resumeBanner: (done: number, total: number) => `▶ Resume (game ${done} / ${total})`,
+    locSchedule: 'Schedule',
     someoneLeaves: 'Someone leaving',
     leavePrompt: 'Select who is leaving, then choose how (finished games stay)',
     leaveTempApply: '🚶 Stepping out (coming back)',
@@ -277,7 +285,7 @@ export const messages: Record<Lang, Messages> = {
     barLeave: 'Leave',
     barJoin: 'Join',
     barReshuffle: 'Reshuffle',
-    barSetup: 'Setup',
+    barSetup: 'Home',
     regHeading: 'Welcome',
     regSub:
       "This app is free to use. To understand who's using it and keep improving it, please register once. You won't be asked again.",

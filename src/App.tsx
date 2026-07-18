@@ -27,6 +27,19 @@ export default function App() {
 
   const onboarding = registered && !defaultsSet
 
+  // 画面遷移は必ずこれを通す。ブラウザ履歴に積むことで、スマホの「戻る」ボタンで
+  // アプリ内の前の画面に戻れる（サイト離脱しない）。
+  const navigate = (v: View) => {
+    setView(v)
+    window.history.pushState({ view: v }, '')
+  }
+
+  // ホーム（設定画面）へ。進行中のセッションには一切触れない（安全なナビゲーション）
+  const goHome = () => {
+    if (!registered || !defaultsSet) return
+    navigate('setup')
+  }
+
   // 初回のデフォルト設定を終えたとき。機能追加前から残っている古いセッションが
   // あると、その古いスケジュール（前の設定・完了状態）へ自動復帰してしまうため、
   // ここで破棄し、決めたばかりのデフォルトで設定画面から始める。
@@ -34,12 +47,13 @@ export default function App() {
     clearSession()
     setSession(null)
     setView('setup')
+    window.history.replaceState({ view: 'setup' }, '')
     setDefaultsSet(true)
   }
 
   const openFeedback = () => {
     setReturnView(view)
-    setView('feedback')
+    navigate('feedback')
   }
 
   // このアプリ自身のURL（クエリ・ハッシュは除く）をQRコードに
@@ -51,7 +65,22 @@ export default function App() {
 
   useEffect(() => {
     void flushPending()
+    // 初期画面を履歴に記録（以降の pushState の起点）
+    window.history.replaceState({ view }, '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // ブラウザの「戻る/進む」でアプリ内の画面を切り替える
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => {
+      const state = e.state as { view?: View } | null
+      let v: View = state?.view ?? 'setup'
+      if ((v === 'schedule' || v === 'summary') && !session) v = 'setup'
+      setView(v)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [session])
 
   const changeLang = (l: Lang) => {
     setLang(l)
@@ -59,6 +88,9 @@ export default function App() {
   }
 
   const start = (playerNames: string[], courts: number, totalGames: number) => {
+    // 進行中のスケジュールがあるときだけ、上書きになることを確認する
+    // （破壊的な操作はここ一箇所に集約。ナビゲーションでは何も消えない）
+    if (session && !window.confirm(t.confirmOverwrite)) return
     const rounds = generateSchedule(playerNames.length, courts, totalGames)
     const s: Session = {
       playerNames,
@@ -71,7 +103,7 @@ export default function App() {
     }
     setSession(s)
     saveSession(s)
-    setView('schedule')
+    navigate('schedule')
   }
 
   const update = (s: Session) => {
@@ -157,24 +189,25 @@ export default function App() {
     })
   }
 
-  const backToSetup = () => {
-    if (!window.confirm(t.confirmNew)) return
-    clearSession()
-    setSession(null)
-    setView('setup')
-  }
+  // 現在地ラベル（ホーム以外の画面で表示）
+  const locLabel =
+    view === 'schedule'
+      ? t.locSchedule
+      : view === 'summary'
+        ? t.barSummary
+        : view === 'defaults'
+          ? t.defaultsTitle
+          : view === 'feedback'
+            ? t.feedbackTitle
+            : null
 
   return (
     <>
       <div className="header">
-        <span className="title">
-          {registered && defaultsSet && (view === 'schedule' || view === 'summary') && (
-            <>
-              <PickleLogo size={26} />
-              {t.appName}
-            </>
-          )}
-        </span>
+        <button className="home-link" onClick={goHome} aria-label={t.appName}>
+          <PickleLogo size={26} />
+          <span className="home-link-name">{t.appName}</span>
+        </button>
         <div className="header-actions">
           <button
             className={`qr-button ${showQr ? 'active' : ''}`}
@@ -199,6 +232,10 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {registered && defaultsSet && locLabel && (
+        <div className="loc-label">🏠 › {locLabel}</div>
+      )}
 
       {showQr && (
         <div className="card qr-card">
@@ -227,13 +264,23 @@ export default function App() {
         <DefaultSettings
           t={t}
           onboarding={false}
-          onSaved={() => setView('setup')}
-          onCancel={() => setView('setup')}
+          onSaved={() => navigate('setup')}
+          onCancel={() => navigate('setup')}
         />
       )}
 
       {registered && defaultsSet && view === 'setup' && (
-        <Setup t={t} onStart={start} onOpenDefaults={() => setView('defaults')} />
+        <Setup
+          t={t}
+          onStart={start}
+          onOpenDefaults={() => navigate('defaults')}
+          resume={
+            session
+              ? { done: session.done.filter(Boolean).length, total: session.totalGames }
+              : null
+          }
+          onResume={() => navigate('schedule')}
+        />
       )}
 
       {registered && defaultsSet && view === 'schedule' && session && (
@@ -241,9 +288,9 @@ export default function App() {
           t={t}
           session={session}
           onUpdate={update}
-          onSummary={() => setView('summary')}
+          onSummary={() => navigate('summary')}
           onRegenerate={regenerate}
-          onBackToSetup={backToSetup}
+          onHome={goHome}
           onLeave={leave}
           onJoin={join}
           onReturn={returnPlayers}
@@ -255,13 +302,13 @@ export default function App() {
         <Summary
           t={t}
           session={session}
-          onBack={() => setView('schedule')}
-          onBackToSetup={backToSetup}
+          onBack={() => navigate('schedule')}
+          onHome={goHome}
         />
       )}
 
       {registered && defaultsSet && view === 'feedback' && (
-        <Feedback t={t} onClose={() => setView(returnView)} />
+        <Feedback t={t} onClose={() => navigate(returnView)} />
       )}
 
       <footer className="app-credit">

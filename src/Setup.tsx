@@ -23,10 +23,14 @@ export default function Setup({
   t,
   onStart,
   onOpenDefaults,
+  resume,
+  onResume,
 }: {
   t: Messages
   onStart: (playerNames: string[], courts: number, totalGames: number) => void
   onOpenDefaults: () => void
+  resume: { done: number; total: number } | null
+  onResume: () => void
 }) {
   const initial = loadDefaults()
   const [players, setPlayers] = useState(initial.players)
@@ -54,6 +58,12 @@ export default function Setup({
 
   return (
     <>
+      {resume && (
+        <button type="button" className="resume-banner" onClick={onResume}>
+          {t.resumeBanner(resume.done, resume.total)}
+        </button>
+      )}
+
       <div className="hero">
         <PickleLogo size={88} />
         <h1>{t.appName}</h1>

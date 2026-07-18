@@ -6,12 +6,12 @@ export default function Summary({
   t,
   session,
   onBack,
-  onBackToSetup,
+  onHome,
 }: {
   t: Messages
   session: Session
   onBack: () => void
-  onBackToSetup: () => void
+  onHome: () => void
 }) {
   const { rounds, playerNames, leftPlayers, pausedPlayers, done } = session
   const doneRounds = rounds.filter((_, i) => done[i])
@@ -72,8 +72,8 @@ export default function Summary({
         <button className="btn-secondary" onClick={onBack}>
           {t.backToSchedule}
         </button>
-        <button className="btn-secondary" onClick={onBackToSetup}>
-          ⚙️ {t.newSession}
+        <button className="btn-secondary" onClick={onHome}>
+          🏠 {t.newSession}
         </button>
       </div>
     </>

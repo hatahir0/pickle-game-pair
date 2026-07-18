@@ -44,7 +44,7 @@ export default function Schedule({
   onUpdate,
   onSummary,
   onRegenerate,
-  onBackToSetup,
+  onHome,
   onLeave,
   onJoin,
   onReturn,
@@ -55,7 +55,7 @@ export default function Schedule({
   onUpdate: (s: Session) => void
   onSummary: () => void
   onRegenerate: () => void
-  onBackToSetup: () => void
+  onHome: () => void
   onLeave: (indices: number[], permanent: boolean) => void
   onJoin: (name: string) => void
   onReturn: (indices: number[]) => void
@@ -369,8 +369,8 @@ export default function Schedule({
           <span className="ico" aria-hidden="true">🔀</span>
           {t.barReshuffle}
         </button>
-        <button onClick={onBackToSetup}>
-          <span className="ico" aria-hidden="true">⚙️</span>
+        <button onClick={onHome}>
+          <span className="ico" aria-hidden="true">🏠</span>
           {t.barSetup}
         </button>
       </div>
