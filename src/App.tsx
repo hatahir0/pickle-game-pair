@@ -4,6 +4,7 @@ import { appendGames, generateSchedule, regenerateRemaining } from './scheduler'
 import { loadLang, messages, saveLang, type Lang } from './i18n'
 import { clearSession, loadSession, saveSession, type Session } from './types'
 import { flushPending, isRegistered, CONTACT_EMAIL, CONTACT_NAME } from './registration'
+import { logUsage } from './usage'
 import { hasDefaults } from './defaults'
 import Setup from './Setup'
 import Schedule from './Schedule'
@@ -70,6 +71,11 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 利用状況ログ: 登録済みユーザーの起動を1日1回記録（日別アクティブ数の把握）
+  useEffect(() => {
+    if (registered) void logUsage('起動')
+  }, [registered])
+
   // ブラウザの「戻る/進む」でアプリ内の画面を切り替える
   useEffect(() => {
     const onPop = (e: PopStateEvent) => {
@@ -103,6 +109,7 @@ export default function App() {
     }
     setSession(s)
     saveSession(s)
+    void logUsage('組み合わせ作成', `${playerNames.length}人${courts}面${totalGames}ゲーム`)
     navigate('schedule')
   }
 

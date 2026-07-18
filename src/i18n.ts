@@ -188,7 +188,7 @@ export const messages: Record<Lang, Messages> = {
     regSourcePh: '友人・知人の名前、SNS など',
     regSubmit: 'はじめる',
     regMailNote:
-      'メールアドレスは、利用状況の確認およびアプリ改善のヒアリングに使う場合があります。広告や第三者への共有はしません。',
+      'ご利用の記録（利用日時・お名前・所属・設定内容など）とメールアドレスを、運営による利用状況の把握とアプリ改善に使います。広告や第三者への共有はしません。',
     regMadeNote:
       '本アプリは、三鷹のピックルボールクラブ「002みたか」のメンバーが作成しています。動作の保証はありません。',
     regContactLabel: '連絡先',
@@ -299,7 +299,7 @@ export const messages: Record<Lang, Messages> = {
     regSourcePh: 'A friend, social media, etc.',
     regSubmit: 'Get started',
     regMailNote:
-      'Your email may be used to check usage and to ask for feedback to improve the app. It is never used for ads or shared with third parties.',
+      'Your usage record (date, name, organization, settings) and email are used by the organizer to understand usage and improve the app. Never used for ads or shared with third parties.',
     regMadeNote:
       'This app is made by a member of “002 Mitaka”, a pickleball club in Mitaka. Provided as is, with no warranty.',
     regContactLabel: 'Contact',
