@@ -26,9 +26,27 @@ export interface Registration {
 
 const REGISTERED_KEY = 'pgp-registered-v1'
 const PENDING_KEY = 'pgp-reg-pending-v1'
+const PROFILE_KEY = 'pgp-profile-v1'
 
 export function isRegistered(): boolean {
   return localStorage.getItem(REGISTERED_KEY) === '1'
+}
+
+export interface Profile {
+  name: string
+  org: string
+  email: string
+}
+
+// 登録済みの本人情報（ご意見・バグ報告に「報告者」として自動で添える）
+export function getProfile(): Profile | null {
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY)
+    if (raw) return JSON.parse(raw) as Profile
+  } catch {
+    /* ignore */
+  }
+  return null
 }
 
 function isConfigured(): boolean {
@@ -61,6 +79,7 @@ async function postToForm(r: Registration): Promise<void> {
 // 送信は best-effort。失敗しても pending に残し次回起動で再送する。
 export async function register(r: Registration): Promise<void> {
   localStorage.setItem(REGISTERED_KEY, '1')
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: r.name, org: r.org, email: r.email }))
   localStorage.setItem(PENDING_KEY, JSON.stringify(r))
   try {
     await postToForm(r)

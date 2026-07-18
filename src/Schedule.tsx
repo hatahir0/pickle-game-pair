@@ -47,6 +47,8 @@ export default function Schedule({
   onBackToSetup,
   onLeave,
   onJoin,
+  onReturn,
+  onAddGame,
 }: {
   t: Messages
   session: Session
@@ -54,10 +56,12 @@ export default function Schedule({
   onSummary: () => void
   onRegenerate: () => void
   onBackToSetup: () => void
-  onLeave: (indices: number[]) => void
+  onLeave: (indices: number[], permanent: boolean) => void
   onJoin: (name: string) => void
+  onReturn: (indices: number[]) => void
+  onAddGame: () => void
 }) {
-  const { rounds, playerNames, totalGames, done, leftPlayers } = session
+  const { rounds, playerNames, totalGames, done, leftPlayers, pausedPlayers } = session
   const doneCount = done.filter(Boolean).length
   const finished = rounds.length > 0 && doneCount === rounds.length
   const firstOpen = done.findIndex((d) => !d)
@@ -66,12 +70,14 @@ export default function Schedule({
 
   const [panel, setPanel] = useState<'leave' | 'join' | null>(null)
   const [picked, setPicked] = useState<Set<number>>(new Set())
+  const [pickedReturn, setPickedReturn] = useState<Set<number>>(new Set())
   const [joinName, setJoinName] = useState('')
 
-  const leftSet = new Set(leftPlayers)
-  const activePlayers = playerNames.map((_, i) => i).filter((i) => !leftSet.has(i))
+  const inactiveSet = new Set([...leftPlayers, ...pausedPlayers])
+  const activePlayers = playerNames.map((_, i) => i).filter((i) => !inactiveSet.has(i))
   const remainingAfter = activePlayers.length - picked.size
   const tooFew = remainingAfter < 4
+  const joinFull = playerNames.length >= 24
 
   const nameOf = (i: number) => playerNames[i] || String(i + 1)
 
@@ -96,9 +102,17 @@ export default function Schedule({
     setPicked(next)
   }
 
+  const togglePickedReturn = (i: number) => {
+    const next = new Set(pickedReturn)
+    if (next.has(i)) next.delete(i)
+    else next.add(i)
+    setPickedReturn(next)
+  }
+
   const closePanel = () => {
     setPanel(null)
     setPicked(new Set())
+    setPickedReturn(new Set())
     setJoinName('')
   }
 
@@ -106,20 +120,31 @@ export default function Schedule({
     if (panel === which) closePanel()
     else {
       setPicked(new Set())
+      setPickedReturn(new Set())
       setJoinName('')
       setPanel(which)
     }
   }
 
-  const applyLeave = () => {
+  const applyLeave = (permanent: boolean) => {
     if (picked.size === 0 || tooFew) return
     const names = [...picked].sort((a, b) => a - b).map(nameOf).join(t.sep)
-    if (!window.confirm(t.leaveConfirm(names))) return
-    onLeave([...picked])
+    const confirmMsg = permanent ? t.leaveForDayConfirm(names) : t.leaveTempConfirm(names)
+    if (!window.confirm(confirmMsg)) return
+    onLeave([...picked], permanent)
+    closePanel()
+  }
+
+  const applyReturn = () => {
+    if (pickedReturn.size === 0) return
+    const names = [...pickedReturn].sort((a, b) => a - b).map(nameOf).join(t.sep)
+    if (!window.confirm(t.returnConfirm(names))) return
+    onReturn([...pickedReturn])
     closePanel()
   }
 
   const applyJoin = () => {
+    if (joinFull) return
     const display = joinName.trim() || String(playerNames.length + 1)
     if (!window.confirm(t.joinConfirm(display))) return
     onJoin(joinName)
@@ -130,9 +155,25 @@ export default function Schedule({
     <>
       <div className="progress">{t.gamesProgress(doneCount, totalGames)}</div>
 
+      {pausedPlayers.length > 0 && (
+        <div className="left-note">
+          <span aria-hidden="true">🚶</span>
+          <span className="rest-label">{t.pausedLabel}</span>
+          <span className="rest-chips">
+            {[...pausedPlayers]
+              .sort((a, b) => a - b)
+              .map((p) => (
+                <span key={p} className="chip left-chip">
+                  {nameOf(p)}
+                </span>
+              ))}
+          </span>
+        </div>
+      )}
+
       {leftPlayers.length > 0 && (
         <div className="left-note">
-          <span aria-hidden="true">🚪</span>
+          <span aria-hidden="true">🏠</span>
           <span className="rest-label">{t.leftLabel}</span>
           <span className="rest-chips">
             {[...leftPlayers]
@@ -194,6 +235,10 @@ export default function Schedule({
         )
       })}
 
+      <button type="button" className="add-game-btn" onClick={onAddGame}>
+        ＋ {t.addGame}
+      </button>
+
       {finished && <div className="finished-banner">{t.finished}</div>}
 
       {!finished && panel === 'leave' && (
@@ -216,9 +261,16 @@ export default function Schedule({
             <button
               className="btn-primary"
               disabled={picked.size === 0 || tooFew}
-              onClick={applyLeave}
+              onClick={() => applyLeave(false)}
             >
-              {t.leaveApply}
+              {t.leaveTempApply}
+            </button>
+            <button
+              className="btn-primary leave-forday"
+              disabled={picked.size === 0 || tooFew}
+              onClick={() => applyLeave(true)}
+            >
+              {t.leaveForDayApply}
             </button>
             <button className="btn-secondary" onClick={closePanel}>
               {t.cancel}
@@ -229,26 +281,63 @@ export default function Schedule({
 
       {!finished && panel === 'join' && (
         <div className="leave-panel card" ref={panelRef}>
+          {pausedPlayers.length > 0 && (
+            <div className="return-section">
+              <p className="leave-prompt">🚶 {t.returnPrompt}</p>
+              <div className="leave-chips">
+                {[...pausedPlayers]
+                  .sort((a, b) => a - b)
+                  .map((i) => (
+                    <button
+                      key={i}
+                      className={`chip pick-chip ${pickedReturn.has(i) ? 'picked' : ''}`}
+                      aria-pressed={pickedReturn.has(i)}
+                      onClick={() => togglePickedReturn(i)}
+                    >
+                      {nameOf(i)}
+                    </button>
+                  ))}
+              </div>
+              <div className="leave-actions">
+                <button
+                  className="btn-primary"
+                  disabled={pickedReturn.size === 0}
+                  onClick={applyReturn}
+                >
+                  {t.returnApply}
+                </button>
+              </div>
+              <hr className="panel-divider" />
+            </div>
+          )}
           <p className="leave-prompt">{t.joinPrompt}</p>
-          <div className="join-field">
-            <span className="join-field-label">{t.joinNumberLabel}</span>
-            <span className="chip">{playerNames.length + 1}</span>
-          </div>
-          <div className="join-field">
-            <span className="join-field-label">{t.joinNameLabel}</span>
-            <input
-              className="join-input"
-              value={joinName}
-              placeholder={t.joinNamePlaceholder}
-              maxLength={12}
-              onChange={(e) => setJoinName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && applyJoin()}
-            />
-          </div>
+          {joinFull ? (
+            <div className="hint warn">{t.joinLimit}</div>
+          ) : (
+            <>
+              <div className="join-field">
+                <span className="join-field-label">{t.joinNumberLabel}</span>
+                <span className="chip">{playerNames.length + 1}</span>
+              </div>
+              <div className="join-field">
+                <span className="join-field-label">{t.joinNameLabel}</span>
+                <input
+                  className="join-input"
+                  value={joinName}
+                  placeholder={t.joinNamePlaceholder}
+                  maxLength={12}
+                  onChange={(e) => setJoinName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && applyJoin()}
+                />
+              </div>
+            </>
+          )}
           <div className="leave-actions">
-            <button className="btn-primary" onClick={applyJoin}>
-              {t.joinApply}
-            </button>
+            {!joinFull && (
+              <button className="btn-primary" onClick={applyJoin}>
+                {t.joinApply}
+              </button>
+            )}
             <button className="btn-secondary" onClick={closePanel}>
               {t.cancel}
             </button>

@@ -52,6 +52,10 @@ interface State {
   playCount: number[]
   prevFoursomes: Set<string>
   prevMates: number[][]
+  prevResting: number[]
+  // 一度でもスケジュールに登場した（プレイまたは休憩した）か。
+  // 途中参加直後の人を休憩に回さないための判定に使う。
+  appeared: boolean[]
 }
 
 function freshState(numPlayers: number): State {
@@ -63,6 +67,8 @@ function freshState(numPlayers: number): State {
     playCount: Array(numPlayers).fill(0),
     prevFoursomes: new Set<string>(),
     prevMates: matrix(numPlayers),
+    prevResting: [],
+    appeared: Array(numPlayers).fill(false),
   }
 }
 
@@ -79,8 +85,20 @@ function generateRound(active: number[], courts: number, state: State, rng: Rng)
   const gamesThisRound = effectiveCourts(active.length, courts)
   const needed = gamesThisRound * 4
 
+  // 休憩者の選定: ⓪初登場の人（途中参加直後）は休憩に回さない ①累計休憩が少ない人
+  // ②直前ゲームで休んでいない人 ③プレイ数が多い人。
+  // ②がないと、回数タイのとき直前に休んだ人が再抽選され「連続休憩」が高頻度で起きる。
+  // ⓪は初回生成では全員未登場（全員タイ）のため影響しない。
+  const justRested = new Set(state.prevResting)
+  const { appeared } = state
   const order = shuffle([...active], rng)
-  order.sort((a, b) => restCount[a] - restCount[b] || playCount[b] - playCount[a])
+  order.sort(
+    (a, b) =>
+      Number(appeared[b]) - Number(appeared[a]) ||
+      restCount[a] - restCount[b] ||
+      Number(justRested.has(a)) - Number(justRested.has(b)) ||
+      playCount[b] - playCount[a],
+  )
   const resting = order.slice(0, active.length - needed).sort((a, b) => a - b)
   const playing = order.slice(active.length - needed)
 
@@ -152,8 +170,11 @@ function generateRound(active: number[], courts: number, state: State, rng: Rng)
   })
 
   for (const r of resting) restCount[r]++
+  for (const p of playing) state.appeared[p] = true
+  for (const r of resting) state.appeared[r] = true
   state.prevFoursomes = newFoursomes
   state.prevMates = newMates
+  state.prevResting = resting
   return { games: committed, resting }
 }
 
@@ -177,13 +198,21 @@ function foldPlayedRound(round: Round, state: State): void {
         opponent[y][x]++
       }
     const four = [...pairA, ...pairB]
-    for (const x of four) playCount[x]++
+    for (const x of four) {
+      playCount[x]++
+      state.appeared[x] = true
+    }
     newFoursomes.add([...four].sort((a, b) => a - b).join('-'))
     for (const x of four) for (const y of four) if (x !== y) newMates[x][y] = 1
   }
-  for (const r of round.resting) restCount[r]++
+  for (const r of round.resting) {
+    restCount[r]++
+    state.appeared[r] = true
+  }
   state.prevFoursomes = newFoursomes
   state.prevMates = newMates
+  // 組み直し時の境界で連続休憩が起きないよう、直前の休憩者も引き継ぐ
+  state.prevResting = [...round.resting]
 }
 
 export function generateSchedule(
@@ -200,34 +229,87 @@ export function generateSchedule(
   return rounds
 }
 
+// 途中参加者・復帰者を中立の状態で合流させる。休憩回数が既存メンバーの最小値より
+// 低いままだと以後ずっと「最も休んでいない人」扱いで休憩に回され続けるため、
+// 最小値まで引き上げる（下げはしない）。初戦は appeared=false が保護する。
+function neutralizeNewcomers(state: State, active: number[]): void {
+  const seen = active.filter((p) => state.appeared[p])
+  if (seen.length === 0) return
+  const minRest = Math.min(...seen.map((p) => state.restCount[p]))
+  for (const p of active) {
+    if (!state.appeared[p]) {
+      state.restCount[p] = Math.max(state.restCount[p], minRest)
+    }
+  }
+}
+
 /**
- * 完了済みゲームは保持したまま、未完了ゲームだけを離脱者を除いて組み直す。
- * @param rounds       既存の全ゲーム
- * @param done         各ゲームの完了フラグ（rounds と同じ長さ）
- * @param numPlayers   参加者総数（番号空間サイズ・不変）
- * @param leftPlayers  離脱した番号
+ * 完了済みゲームは保持したまま、未完了ゲームだけを不参加者を除いて組み直す。
+ * @param rounds          既存の全ゲーム
+ * @param done            各ゲームの完了フラグ（rounds と同じ長さ）
+ * @param numPlayers      参加者総数（番号空間サイズ・不変）
+ * @param inactivePlayers 除外する番号（本日終了＋一時離脱中）
+ * @param returning       一時離脱から戻る番号。初参加と同じ扱いで合流させる
+ *                        （戻った直後に休憩へ回されないための保護つき）
  * @returns 完了済みは同一オブジェクトのまま、未完了は再生成した新しい配列
  */
 export function regenerateRemaining(
   rounds: Round[],
   done: boolean[],
   numPlayers: number,
-  leftPlayers: number[],
+  inactivePlayers: number[],
   courts: number,
   rng: Rng = Math.random,
+  returning: number[] = [],
 ): Round[] {
-  const leftSet = new Set(leftPlayers)
-  const active = [...Array(numPlayers).keys()].filter((i) => !leftSet.has(i))
+  const inactiveSet = new Set(inactivePlayers)
+  const active = [...Array(numPlayers).keys()].filter((i) => !inactiveSet.has(i))
   if (active.length < 4) throw new Error('need at least 4 remaining players')
 
   const state = freshState(numPlayers)
-  return rounds.map((round, i) => {
+  const result: Round[] = []
+  let normalized = false
+  for (let i = 0; i < rounds.length; i++) {
     if (done[i]) {
-      foldPlayedRound(round, state)
-      return round
+      foldPlayedRound(rounds[i], state)
+      result.push(rounds[i])
+      continue
     }
-    return generateRound(active, courts, state, rng)
-  })
+    if (!normalized) {
+      normalized = true
+      // 復帰者は過去に登場済みだが「戻ってきたばかり」なので初参加と同じ扱いに戻す
+      for (const p of returning) {
+        if (p >= 0 && p < numPlayers) state.appeared[p] = false
+      }
+      neutralizeNewcomers(state, active)
+    }
+    result.push(generateRound(active, courts, state, rng))
+  }
+  return result
+}
+
+/**
+ * 既存の全ゲーム（完了・未完了とも）を前提の履歴として、末尾に count ゲームを追加する。
+ * 既存ゲームには一切手を付けない。「多めに作ったが時間が余った」とき用。
+ */
+export function appendGames(
+  rounds: Round[],
+  numPlayers: number,
+  inactivePlayers: number[],
+  courts: number,
+  count: number,
+  rng: Rng = Math.random,
+): Round[] {
+  const inactiveSet = new Set(inactivePlayers)
+  const active = [...Array(numPlayers).keys()].filter((i) => !inactiveSet.has(i))
+  if (active.length < 4) throw new Error('need at least 4 active players')
+
+  const state = freshState(numPlayers)
+  for (const r of rounds) foldPlayedRound(r, state)
+  neutralizeNewcomers(state, active)
+  const added: Round[] = []
+  for (let i = 0; i < count; i++) added.push(generateRound(active, courts, state, rng))
+  return [...rounds, ...added]
 }
 
 export interface PlayerStats {

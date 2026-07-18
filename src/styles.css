@@ -437,10 +437,114 @@ details.names[open] .names-chevron {
   color: #fff;
 }
 
+.add-game-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 13px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--green-dark);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-game-btn:active {
+  background: var(--green-pale);
+}
+
+.btn-primary.leave-forday {
+  background: var(--amber-text);
+}
+
+.panel-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.qr-button.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.qr-card {
+  text-align: center;
+}
+
+.qr-title {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.qr-code {
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.qr-code svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.qr-url {
+  font-size: 12px;
+  color: var(--green-dark);
+  word-break: break-all;
+  margin-top: 10px;
+}
+
+.qr-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 6px 0 12px;
+}
+
+.summary-progress {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
 .summary-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
+}
+
+.summary-table .col-sub {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.summary-table .of-planned {
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .summary-table th,
@@ -501,6 +605,57 @@ details.names[open] .names-chevron {
 .app-credit a {
   color: var(--green-dark);
   text-decoration: none;
+}
+
+.feedback-link {
+  background: transparent;
+  border: none;
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.fb-types {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.fb-type {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fb-type.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.fb-content {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.fb-reporter {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 10px;
 }
 
 .left-note {

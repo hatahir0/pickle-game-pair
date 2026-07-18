@@ -38,10 +38,13 @@ export interface Messages {
   confirmNew: string
   someoneLeaves: string
   leavePrompt: string
-  leaveApply: string
-  leaveConfirm: (names: string) => string
+  leaveTempApply: string
+  leaveForDayApply: string
+  leaveTempConfirm: (names: string) => string
+  leaveForDayConfirm: (names: string) => string
   leaveTooFew: string
   leftLabel: string
+  pausedLabel: string
   cancel: string
   someoneJoins: string
   joinPrompt: string
@@ -50,6 +53,13 @@ export interface Messages {
   joinNamePlaceholder: string
   joinApply: string
   joinConfirm: (name: string) => string
+  joinLimit: string
+  returnPrompt: string
+  returnApply: string
+  returnConfirm: (names: string) => string
+  addGame: string
+  qrShare: string
+  qrHint: string
   barSummary: string
   barLeave: string
   barJoin: string
@@ -71,12 +81,25 @@ export interface Messages {
   regContactLabel: string
   regErrRequired: string
   regErrEmail: string
+  feedbackTitle: string
+  feedbackSub: string
+  feedbackTypeBug: string
+  feedbackTypeFeature: string
+  feedbackPlaceholder: string
+  feedbackReporter: string
+  feedbackSubmit: string
+  feedbackThanks: string
+  feedbackErrRequired: string
+  close: string
   pairRepeat: (n: number) => string
   summaryTitle: string
+  summaryDone: (done: number, total: number) => string
+  doneOverPlanned: string
   colPlayer: string
   colPlays: string
   colRests: string
   repeatedPairs: (n: number) => string
+  repeatedPairsBoth: (done: number, planned: number) => string
   backToSchedule: string
   finished: string
   progress: (r: number, total: number) => string
@@ -115,12 +138,16 @@ export const messages: Record<Lang, Messages> = {
     newSession: '設定に戻る',
     confirmNew: '設定画面に戻ります。今のスケジュールは消えますがよいですか？',
     someoneLeaves: '途中で抜ける人',
-    leavePrompt: 'この先のゲームから外す人を選んでください（完了済みはそのまま）',
-    leaveApply: '外して組み直す',
-    leaveConfirm: (names: string) =>
-      `${names} をこの先のゲームから外し、残りを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
+    leavePrompt: 'この先のゲームから外す人を選んで、抜け方を選んでください（完了済みはそのまま）',
+    leaveTempApply: '🚶 一時離脱（あとで戻る）',
+    leaveForDayApply: '🏠 今日は終了',
+    leaveTempConfirm: (names: string) =>
+      `${names} を一時離脱にして、この先のゲームを組み直します。復帰は「入る」からできます。よいですか？`,
+    leaveForDayConfirm: (names: string) =>
+      `${names} を本日終了にして、この先のゲームを組み直します。よいですか？`,
     leaveTooFew: '残りが4人未満になるため、これ以上は外せません',
-    leftLabel: '離脱',
+    leftLabel: '本日終了',
+    pausedLabel: '一時離脱中',
     cancel: 'キャンセル',
     someoneJoins: '途中から入る人',
     joinPrompt: 'あとから来た人を1名追加します。',
@@ -130,6 +157,14 @@ export const messages: Record<Lang, Messages> = {
     joinApply: '追加',
     joinConfirm: (name: string) =>
       `${name} を追加し、この先のゲームを組み直します。完了済みのゲームはそのまま残ります。よいですか？`,
+    joinLimit: 'これ以上追加できません（最大24人）',
+    returnPrompt: '一時離脱から戻る人をタップして「復帰」を押してください',
+    returnApply: '復帰して組み直す',
+    returnConfirm: (names: string) =>
+      `${names} が復帰し、この先のゲームを組み直します。よいですか？`,
+    addGame: 'ゲームを追加',
+    qrShare: 'このアプリを共有',
+    qrHint: 'スマホのカメラでQRコードを読み取ると、このアプリが開きます',
     barSummary: 'サマリー',
     barLeave: '抜ける',
     barJoin: '入る',
@@ -154,13 +189,27 @@ export const messages: Record<Lang, Messages> = {
     regContactLabel: '連絡先',
     regErrRequired: 'すべての項目を入力してください',
     regErrEmail: 'メールアドレスの形式が正しくありません',
+    feedbackTitle: 'ご意見・バグ報告',
+    feedbackSub: 'お気づきの点や「こんな機能がほしい」をお送りください。',
+    feedbackTypeBug: 'バグ報告',
+    feedbackTypeFeature: '機能の要望',
+    feedbackPlaceholder: '例：〇〇の画面で△△すると□□になる／〜できると嬉しい',
+    feedbackReporter: '報告者',
+    feedbackSubmit: '送信する',
+    feedbackThanks: 'ありがとうございます。送信しました。',
+    feedbackErrRequired: '内容を入力してください',
+    close: '閉じる',
     pairRepeat: (n: number) => `${n}回目`,
     summaryTitle: '結果サマリー',
+    summaryDone: (done: number, total: number) => `完了 ${done} / 予定 ${total} ゲーム`,
+    doneOverPlanned: '完了 / 予定',
     colPlayer: 'プレイヤー',
     colPlays: '試合数',
     colRests: '休憩',
     repeatedPairs: (n: number) =>
       n === 0 ? 'ペアの重複はありません 🎉' : `2回以上組んだペア: ${n} 組`,
+    repeatedPairsBoth: (done: number, planned: number) =>
+      `2回以上組んだペア: 完了分 ${done} 組 / 予定全体 ${planned} 組`,
     backToSchedule: 'スケジュールに戻る',
     finished: '全ゲーム終了！おつかれさまでした 🏓',
     progress: (r: number, total: number) => `ラウンド ${r} / ${total}`,
@@ -198,12 +247,16 @@ export const messages: Record<Lang, Messages> = {
     newSession: 'Back to setup',
     confirmNew: 'Go back to setup? The current schedule will be lost.',
     someoneLeaves: 'Someone leaving',
-    leavePrompt: 'Select who is leaving (removed from upcoming games; finished games stay)',
-    leaveApply: 'Remove & rebuild',
-    leaveConfirm: (names: string) =>
-      `Remove ${names} from upcoming games and rebuild the rest? Finished games are kept.`,
+    leavePrompt: 'Select who is leaving, then choose how (finished games stay)',
+    leaveTempApply: '🚶 Stepping out (coming back)',
+    leaveForDayApply: '🏠 Done for today',
+    leaveTempConfirm: (names: string) =>
+      `Mark ${names} as stepped out and rebuild upcoming games? They can return via "Join".`,
+    leaveForDayConfirm: (names: string) =>
+      `Mark ${names} as done for today and rebuild upcoming games?`,
     leaveTooFew: 'Cannot remove more — fewer than 4 players would remain',
-    leftLabel: 'Left',
+    leftLabel: 'Done for today',
+    pausedLabel: 'Stepped out',
     cancel: 'Cancel',
     someoneJoins: 'Add player',
     joinPrompt: 'Add one player who just arrived.',
@@ -213,6 +266,13 @@ export const messages: Record<Lang, Messages> = {
     joinApply: 'Add',
     joinConfirm: (name: string) =>
       `Add ${name} and rebuild the upcoming games? Finished games are kept.`,
+    joinLimit: 'Player limit reached (24 max)',
+    returnPrompt: 'Tap who is coming back, then press Return',
+    returnApply: 'Return & rebuild',
+    returnConfirm: (names: string) => `${names} will rejoin; upcoming games will be rebuilt. OK?`,
+    addGame: 'Add a game',
+    qrShare: 'Share this app',
+    qrHint: 'Scan the QR code with a phone camera to open this app',
     barSummary: 'Summary',
     barLeave: 'Leave',
     barJoin: 'Join',
@@ -237,13 +297,27 @@ export const messages: Record<Lang, Messages> = {
     regContactLabel: 'Contact',
     regErrRequired: 'Please fill in all fields',
     regErrEmail: 'Please enter a valid email address',
+    feedbackTitle: 'Feedback & bug report',
+    feedbackSub: 'Tell us about any issues or features you would like.',
+    feedbackTypeBug: 'Bug report',
+    feedbackTypeFeature: 'Feature request',
+    feedbackPlaceholder: 'e.g. On screen X, doing Y causes Z / It would be nice to have …',
+    feedbackReporter: 'From',
+    feedbackSubmit: 'Send',
+    feedbackThanks: 'Thanks! Your message has been sent.',
+    feedbackErrRequired: 'Please enter some details',
+    close: 'Close',
     pairRepeat: (n: number) => `${ordinalEn(n)} time`,
     summaryTitle: 'Summary',
+    summaryDone: (done: number, total: number) => `${done} of ${total} games completed`,
+    doneOverPlanned: 'done / planned',
     colPlayer: 'Player',
     colPlays: 'Games',
     colRests: 'Rests',
     repeatedPairs: (n: number) =>
       n === 0 ? 'No repeated pairs 🎉' : `Pairs playing together twice or more: ${n}`,
+    repeatedPairsBoth: (done: number, planned: number) =>
+      `Pairs together twice or more: ${done} completed / ${planned} planned`,
     backToSchedule: 'Back to schedule',
     finished: 'All games done — great job! 🏓',
     progress: (r: number, total: number) => `Round ${r} / ${total}`,

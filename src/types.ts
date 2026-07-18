@@ -6,7 +6,8 @@ export interface Session {
   totalGames: number
   rounds: Round[]
   done: boolean[]
-  leftPlayers: number[]
+  leftPlayers: number[] // 本日終了（戻らない）
+  pausedPlayers: number[] // 一時離脱（あとで戻る）
 }
 
 const SESSION_KEY = 'pgp-session-v1'
@@ -22,6 +23,7 @@ export function loadSession(): Session | null {
       s.done = s.rounds.map((_, i) => i < cr)
     }
     if (!Array.isArray(s.leftPlayers)) s.leftPlayers = []
+    if (!Array.isArray(s.pausedPlayers)) s.pausedPlayers = []
     return s
   } catch {
     return null
