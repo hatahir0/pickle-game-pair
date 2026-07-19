@@ -331,9 +331,9 @@ export default function App() {
       )}
 
       <footer className="app-credit">
-        {registered ? (
+        {registered && view !== 'home' ? (
           <>
-            {defaultsSet && view !== 'feedback' && view !== 'home' && (
+            {defaultsSet && view !== 'feedback' && (
               <p>
                 <button className="feedback-link" onClick={openFeedback}>
                   💬 {t.feedbackTitle}
